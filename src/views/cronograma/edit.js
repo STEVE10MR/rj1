@@ -5,22 +5,21 @@ import axios from 'axios';
 import config from '../../config';
 
 const ProjectSchedule = () => {
-    const { id } = useParams();
-    const [loading, setLoading] = useState(true);
-    const [cronogramaId, setCronogramaId] = useState('');
-    const [metodologiaId, setMetodologiaId] = useState('');
-    const [availablePhases, setAvailablePhases] = useState([]);
-    const [selectedPhase, setSelectedPhase] = useState('');
-    const [phases, setPhases] = useState([]);
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const navigate = useNavigate();
+  const { id } = useParams();
+  const [loading, setLoading] = useState(true);
+  const [cronogramaId, setCronogramaId] = useState('');
+  const [metodologiaId, setMetodologiaId] = useState('');
+  const [availablePhases, setAvailablePhases] = useState([]);
+  const [selectedPhase, setSelectedPhase] = useState('');
+  const [phases, setPhases] = useState([]);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSchedule = async () => {
       setLoading(true);
       try {
-        console.log(`${config.API_URL}/proyecto/${id}/cronograma`)
         const response = await axios.get(`${config.API_URL}/proyecto/${id}/cronograma`, {
           withCredentials: true,
         });
@@ -66,17 +65,16 @@ const ProjectSchedule = () => {
 
     setLoading(true);
     try {
-
       await axios.patch(`${config.API_URL}/proyecto/${id}/cronograma/${cronogramaId}`, {
         faseId: selectedPhase
       }, {
         withCredentials: true,
       });
-      
+
       const response = await axios.get(`${config.API_URL}/proyecto/${id}/cronograma`, {
         withCredentials: true,
       });
-      
+
       const cronograma = response.data.data;
       setPhases(cronograma.cronogramaFase || []);
       setSnackbarMessage('Phase added successfully');
@@ -106,19 +104,23 @@ const ProjectSchedule = () => {
                 <TableRow>
                   <TableCell>Num</TableCell>
                   <TableCell>Fase</TableCell>
+                  <TableCell>Progreso Inicio</TableCell>
+                  <TableCell>Progreso Fin</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {phases.length > 0 ? (
                   phases.map((phase, index) => (
-                    <TableRow key={phase.fase_id._id}>
+                    <TableRow key={phase._id}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>{phase.fase_id.nombre}</TableCell>
+                      <TableCell>{phase.progresoInicio || 0}%</TableCell>
+                      <TableCell>{phase.progresoFin || 0}%</TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={2} align="center">
+                    <TableCell colSpan={4} align="center">
                       No se encontraron fases
                     </TableCell>
                   </TableRow>
