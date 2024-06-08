@@ -49,7 +49,7 @@ const Login = () => {
         const response = await axios.get(`${config.API_URL}/auth/verify-session`, {
           withCredentials: true,
         });
-        console.log("Message",response)
+        
         if (response.data) {
           navigate("/dashboard");
         }

@@ -34,11 +34,9 @@ const Sidebar = () => {
         const committeeId = ManagerCookies.getCookie('committeeId');
         const teamRole = ManagerCookies.getCookie('teamRole');
         const selectedProject = ManagerCookies.getCookie('selectedProject');
-        const userRole = ManagerCookies.getCookie('userRole');
-        
-        console.log(teamRole)
+        const userRole = 'jefe proyecto'//ManagerCookies.getCookie('userRole');
 
-        if ((!selectedProject && (!committeeId || !teamRole)) && userRole !== 'admin') {
+        if ((!selectedProject && (!committeeId || !teamRole)) && (userRole !== 'admin' && userRole !== 'jefe proyecto')) {
           ManagerCookies.deleteCookie('selectedProject');
           ManagerCookies.deleteCookie('committeeId');
           ManagerCookies.deleteCookie('teamRole');
@@ -108,13 +106,13 @@ const Sidebar = () => {
             </ListItemIcon>
             <ListItemText primary="Dashboard" />
           </ListItem>
-          <ListItem button onClick={handleSelectProject} sx={{ '&:hover': { bgcolor: theme.palette.action.hover } }}>
+          {['user'].includes(role) && (<ListItem button onClick={handleSelectProject} sx={{ '&:hover': { bgcolor: theme.palette.action.hover } }}>
             <ListItemIcon>
               <Assignment />
             </ListItemIcon>
             <ListItemText primary="Seleccionar Proyecto" />
-          </ListItem>
-          {role === 'admin' && (
+          </ListItem>)}
+          {['admin','jefe proyecto'].includes(role) && (
             <>
               <ListItem button onClick={handleToggleMantenimiento} sx={{ '&:hover': { bgcolor: theme.palette.action.hover } }}>
                 <ListItemIcon>
@@ -147,12 +145,10 @@ const Sidebar = () => {
           </ListItem>
           <Collapse in={openProyecto} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button component={Link} to="/dashboard/methodology-management" sx={{ pl: 4, '&:hover': { bgcolor: theme.palette.action.hover } }}>
-                <ListItemText primary="Gestión de Metodologías" />
-              </ListItem>
+            {['jefe proyecto'].includes(role) && (
               <ListItem button component={Link} to="/dashboard/project-management" sx={{ pl: 4, '&:hover': { bgcolor: theme.palette.action.hover } }}>
                 <ListItemText primary="Gestión de Proyectos" />
-              </ListItem>
+              </ListItem>)}
             </List>
           </Collapse>
           <ListItem button component={Link} to="/dashboard/security" sx={{ '&:hover': { bgcolor: theme.palette.action.hover } }}>

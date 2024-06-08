@@ -15,8 +15,7 @@ const Layout = () => {
   const [user, setUser] = useState({ role: null, token: null });
   const [loading, setLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState(null);
-
-
+  
   useEffect(() => {
     const project = ManagerCookies.getCookie('selectedProject');
     //const project = localStorage.getItem('selectedProject');
@@ -40,11 +39,11 @@ const Layout = () => {
   if (loading) {
     return <CircularProgress />;
   }
-
   if (!user.role) {
     return <Navigate to="/" />;
   }
-  if(user.role =='admin'){
+  console.log("1")
+  if(user.role =='admin' || user.role =='jefe proyecto'){
     return (
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
@@ -64,9 +63,11 @@ const Layout = () => {
       </Box>
     );
   }
-  if (user.role !== 'admin' && !selectedProject && location.pathname !== '/select-project') {
+  console.log("2")
+  if (user.role !== 'admin' && user.role !== 'jefe proyecto' && !selectedProject && location.pathname !== '/select-project') {
     return <Navigate to="/select-project" />;
   }
+  console.log("3")
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />

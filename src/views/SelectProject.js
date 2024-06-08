@@ -32,7 +32,6 @@ const SelectProject = () => {
           navigate('/dashboard');
         }
         */
-        console.log(ManagerCookies.getCookie('selectedProject'))
         if(ManagerCookies.getCookie('selectedProject')){
           navigate('/dashboard');
         }

@@ -77,7 +77,7 @@ const FasesIndex = () => {
         </IconButton>
         <Typography variant="h4" sx={{ ml: 1 }}>Fases de la Metodología</Typography>
       </Box>
-      {localStorage.getItem('userRole') == 'admin' &&(<Button variant="contained" color="primary" onClick={handleRegister} sx={{ mb: 2 }}>
+      {['admin','jefe proyecto'].includes(localStorage.getItem('userRole')) &&(<Button variant="contained" color="primary" onClick={handleRegister} sx={{ mb: 2 }}>
         Registrar Fase
       </Button>)}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
@@ -134,7 +134,7 @@ const FasesIndex = () => {
                     <TableCell>{fase.descripcion}</TableCell>
                     <TableCell>
                     <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleGet(fase._id)}>VER</Button>
-                    {localStorage.getItem('userRole') == 'admin' &&(<Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(fase._id)}>EDITAR</Button>)}
+                    {['admin','jefe proyecto'].includes(localStorage.getItem('userRole')) &&(<Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(fase._id)}>EDITAR</Button>)}
                     <Button variant="contained" color="error">ELIMINAR</Button>
                     </TableCell>
                   </TableRow>

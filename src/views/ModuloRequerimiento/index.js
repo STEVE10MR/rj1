@@ -124,8 +124,12 @@ const ModulosRequerimientoIndex = () => {
                     <TableCell>{modulo.nombre}</TableCell>
                     <TableCell>{modulo.descripcion}</TableCell>
                     <TableCell>
-                      <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(modulo._id)}>EDITAR</Button>
-                      <Button variant="contained" color="error">ELIMINAR</Button>
+                      {['admin','jefe proyecto'].includes(localStorage.getItem('userRole')) && (
+                        <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(modulo._id)}>EDITAR</Button>
+                      )}
+                      {['admin','jefe proyecto'].includes(localStorage.getItem('userRole')) && (
+                        <Button variant="contained" color="error">ELIMINAR</Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

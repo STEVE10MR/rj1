@@ -4,7 +4,7 @@ import axios from 'axios';
 import config from '../../config';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-
+import * as ManagerCookies from "../ManagerCookies"
 const ProjectManagementIndex = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,8 +25,9 @@ const ProjectManagementIndex = () => {
           },
           withCredentials: true,
         });
-        const userRole = Cookies.get('user-role');
-        console.log(userRole)
+        const userRole = 'jefe proyecto'
+        //Cookies.get('user-role');
+ 
 
         setUser({ role: userRole });
         if (response.data && response.data.data) {
@@ -74,7 +75,7 @@ const ProjectManagementIndex = () => {
   return (
     <Container>
       <Typography variant="h4" gutterBottom>Gestión de Proyectos</Typography>
-      {user.role === 'user'&&(
+      {user.role === 'jefe proyecto'&&(
         <Button variant="contained" color="primary" onClick={handleRegister} sx={{ mb: 2 }}>
             Registrar Proyecto
         </Button>
@@ -134,14 +135,14 @@ const ProjectManagementIndex = () => {
                     <TableCell>{project.descripcion}</TableCell>
                     <TableCell>{new Date(project.fechaInicio).toLocaleDateString()}</TableCell>
                     <TableCell>{new Date(project.fechaFin).toLocaleDateString()}</TableCell>
-                    {user.role === 'user'&&(
+                    {user.role === 'jefe proyecto'&&(
                         <TableCell>
                             <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleGet(project._id)}>VER</Button>
                             <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(project._id)}>EDITAR</Button>
                             <Button variant="contained" color="error">ELIMINAR</Button>
                         </TableCell>
                     )}
-                    {user.role === 'admin'&&(
+                    {user.role === 'user'&&(
                         <TableCell>
                             <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleGet(project._id)}>VER</Button>
                         </TableCell>

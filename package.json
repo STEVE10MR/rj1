@@ -29,7 +29,6 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
-  "proxy": "http://gcsmanger.ddns.net",
   "browserslist": [
     ">0.2%",
     "not dead",

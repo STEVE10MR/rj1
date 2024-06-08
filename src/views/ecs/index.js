@@ -75,9 +75,11 @@ const ECSIndex = () => {
         </IconButton>
         <Typography variant="h4" sx={{ ml: 1 }}>Elementos de Configuración del Software</Typography>
       </Box>
+      {['admin','jefe proyecto'].includes(localStorage.getItem('userRole')) &&(
       <Button variant="contained" color="primary" onClick={handleRegister} sx={{ mb: 2 }}>
         Registrar ECS
       </Button>
+      )}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <TextField
           label="Nombre del ECS"
@@ -141,8 +143,8 @@ const ECSIndex = () => {
                     <TableCell>{new Date(ec.versiones[ec.versiones.length-1].fechaInicio).toLocaleDateString()}</TableCell>
                     <TableCell>{new Date(ec.versiones[ec.versiones.length-1].fechaFin).toLocaleDateString()}</TableCell>
                     <TableCell>
-                      <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(ec._id)}>EDITAR</Button>
-                      <Button variant="contained" color="error">ELIMINAR</Button>
+                      {['admin','jefe proyecto'].includes(localStorage.getItem('userRole')) && (<Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(ec._id)}>EDITAR</Button>)}
+                      {['admin','jefe proyecto'].includes(localStorage.getItem('userRole')) && (<Button variant="contained" color="error">ELIMINAR</Button>)}
                     </TableCell>
                   </TableRow>
                 ))

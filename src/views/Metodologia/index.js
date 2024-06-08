@@ -70,7 +70,7 @@ const MetodologiaIndex = () => {
   return (
     <Container>
       <Typography variant="h4" gutterBottom>Gestión de Metodologías</Typography>
-      {localStorage.getItem('userRole') === 'admin' && (
+      {['admin','jefe proyecto'].includes(localStorage.getItem('userRole')) && (
       <Button variant="contained" color="primary" onClick={handleRegister} sx={{ mb: 2 }}>
         Registrar Metodología
       </Button>)}
@@ -126,7 +126,7 @@ const MetodologiaIndex = () => {
                     <TableCell>{metodologia.descripcion}</TableCell>
                     <TableCell>
                       <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleGet(metodologia._id)}>VER</Button>
-                      {localStorage.getItem('userRole') == 'admin' && (<Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(metodologia._id)}>EDITAR</Button>)}
+                      {['admin','jefe proyecto'].includes(localStorage.getItem('userRole')) && (<Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(metodologia._id)}>EDITAR</Button>)}
                       <Button variant="contained" color="error">ELIMINAR</Button>
                     </TableCell>
                   </TableRow>
