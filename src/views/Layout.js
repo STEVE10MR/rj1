@@ -42,7 +42,7 @@ const Layout = () => {
   if (!user.role) {
     return <Navigate to="/" />;
   }
-  console.log("1")
+
   if(user.role =='admin' || user.role =='jefe proyecto'){
     return (
       <Box sx={{ display: 'flex' }}>

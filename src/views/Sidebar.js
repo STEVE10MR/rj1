@@ -29,12 +29,12 @@ const Sidebar = () => {
           console.error('Error fetching user information:', error);
         }
       };
-  
+      
       const fetchUserCheckInfo = async () => {
         const committeeId = ManagerCookies.getCookie('committeeId');
         const teamRole = ManagerCookies.getCookie('teamRole');
         const selectedProject = ManagerCookies.getCookie('selectedProject');
-        const userRole = 'jefe proyecto'//ManagerCookies.getCookie('userRole');
+        const userRole = ManagerCookies.getCookie('userRole');
 
         if ((!selectedProject && (!committeeId || !teamRole)) && (userRole !== 'admin' && userRole !== 'jefe proyecto')) {
           ManagerCookies.deleteCookie('selectedProject');

@@ -25,7 +25,7 @@ const ProjectManagementIndex = () => {
           },
           withCredentials: true,
         });
-        const userRole = 'jefe proyecto'
+        const userRole = ManagerCookies.getCookie('userRole');
         //Cookies.get('user-role');
  
 
