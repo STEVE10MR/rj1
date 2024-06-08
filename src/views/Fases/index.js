@@ -4,7 +4,7 @@ import { ArrowBack } from '@mui/icons-material';
 import axios from 'axios';
 import config from '../../config';
 import { useNavigate, useParams } from 'react-router-dom';
-
+import * as ManagerCookies from "./ManagerCookies"
 const FasesIndex = () => {
   const [fases, setFases] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -77,7 +77,7 @@ const FasesIndex = () => {
         </IconButton>
         <Typography variant="h4" sx={{ ml: 1 }}>Fases de la Metodología</Typography>
       </Box>
-      {['admin','jefe proyecto'].includes(localStorage.getItem('userRole')) &&(<Button variant="contained" color="primary" onClick={handleRegister} sx={{ mb: 2 }}>
+      {['admin','jefe proyecto'].includes(ManagerCookies.getCookie('userRole')) &&(<Button variant="contained" color="primary" onClick={handleRegister} sx={{ mb: 2 }}>
         Registrar Fase
       </Button>)}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>

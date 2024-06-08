@@ -3,7 +3,7 @@ import { Box, Container, Table, TableBody, TableCell, TableContainer, TableHead,
 import axios from 'axios';
 import config from '../../config';
 import { useNavigate } from 'react-router-dom';
-
+import * as ManagerCookies from "./ManagerCookies"
 const MetodologiaIndex = () => {
   const [metodologias, setMetodologias] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -70,7 +70,7 @@ const MetodologiaIndex = () => {
   return (
     <Container>
       <Typography variant="h4" gutterBottom>Gestión de Metodologías</Typography>
-      {['admin','jefe proyecto'].includes(localStorage.getItem('userRole')) && (
+      {['admin','jefe proyecto'].includes(ManagerCookies.getCookie('userRole')) && (
       <Button variant="contained" color="primary" onClick={handleRegister} sx={{ mb: 2 }}>
         Registrar Metodología
       </Button>)}

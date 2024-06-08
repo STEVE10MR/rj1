@@ -4,7 +4,7 @@ import { ArrowBack } from '@mui/icons-material';
 import axios from 'axios';
 import config from '../../config';
 import { useNavigate, useParams } from 'react-router-dom';
-
+import * as ManagerCookies from "./ManagerCookies"
 const ECSIndex = () => {
   const [ecs, setEcs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -75,7 +75,7 @@ const ECSIndex = () => {
         </IconButton>
         <Typography variant="h4" sx={{ ml: 1 }}>Elementos de Configuración del Software</Typography>
       </Box>
-      {['admin','jefe proyecto'].includes(localStorage.getItem('userRole')) &&(
+      {['admin','jefe proyecto'].includes(ManagerCookies.getCookie('userRole')) &&(
       <Button variant="contained" color="primary" onClick={handleRegister} sx={{ mb: 2 }}>
         Registrar ECS
       </Button>
