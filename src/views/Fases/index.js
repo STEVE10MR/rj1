@@ -4,7 +4,7 @@ import { ArrowBack } from '@mui/icons-material';
 import axios from 'axios';
 import config from '../../config';
 import { useNavigate, useParams } from 'react-router-dom';
-import * as ManagerCookies from "./ManagerCookies"
+import * as ManagerCookies from "../ManagerCookies"
 const FasesIndex = () => {
   const [fases, setFases] = useState([]);
   const [loading, setLoading] = useState(true);

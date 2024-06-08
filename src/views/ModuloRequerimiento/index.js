@@ -3,7 +3,7 @@ import { Box, Container, Table, TableBody, TableCell, TableContainer, TableHead,
 import axios from 'axios';
 import config from '../../config';
 import { useNavigate } from 'react-router-dom';
-import * as ManagerCookies from "./ManagerCookies"
+import * as ManagerCookies from "../ManagerCookies"
 const ModulosRequerimientoIndex = () => {
   const [modulos, setModulos] = useState([]);
   const [loading, setLoading] = useState(true);
