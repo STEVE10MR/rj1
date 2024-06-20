@@ -33,7 +33,7 @@ const ProjectSchedule = () => {
           withCredentials: true,
         });
         const cronograma = response.data.data;
-        setMetodologiaId(cronograma.metodologia_id);
+        setMetodologiaId(cronograma.metodologia_id._id);
         setCronogramaId(cronograma._id);
         setPhases(cronograma.cronogramaFase || []);
         setLoading(false);
