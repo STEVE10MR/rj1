@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Box, Button, CircularProgress, Snackbar, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Select, MenuItem, FormControl, InputLabel, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Container, Typography, Box, Button, CircularProgress, Snackbar, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Select, MenuItem, FormControl, InputLabel, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import config from '../../config';
@@ -14,6 +14,8 @@ const ProjectSchedule = () => {
   const [phases, setPhases] = useState([]);
   const [availableEcs, setAvailableEcs] = useState([]);
   const [selectedEcs, setSelectedEcs] = useState('');
+  const [fechaInicio, setFechaInicio] = useState('');
+  const [fechaFin, setFechaFin] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -81,8 +83,8 @@ const ProjectSchedule = () => {
   };
 
   const handleAddPhase = async () => {
-    if (!selectedPhase) {
-      setSnackbarMessage('Selecciona una fase por favor');
+    if (!selectedPhase || !fechaInicio || !fechaFin) {
+      setSnackbarMessage('Selecciona una fase y proporciona fechas de inicio y fin');
       setSnackbarOpen(true);
       return;
     }
@@ -90,7 +92,7 @@ const ProjectSchedule = () => {
     setLoading(true);
     try {
       await axios.patch(`${config.API_URL}/proyecto/${id}/cronograma/${cronogramaId}`, {
-        faseId: selectedPhase
+        faseId: selectedPhase, fechaInicio, fechaFin
       }, {
         withCredentials: true,
       });
@@ -265,6 +267,20 @@ const ProjectSchedule = () => {
                 ))}
               </Select>
             </FormControl>
+            <TextField
+              label="Fecha Inicio"
+              type="date"
+              value={fechaInicio}
+              onChange={(e) => setFechaInicio(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="Fecha Fin"
+              type="date"
+              value={fechaFin}
+              onChange={(e) => setFechaFin(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
             <Button variant="contained" color="primary" onClick={handleAddPhase}>
               Agregar Fase
             </Button>
