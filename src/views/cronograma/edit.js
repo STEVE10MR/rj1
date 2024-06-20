@@ -107,7 +107,8 @@ const ProjectSchedule = () => {
       }, {
         withCredentials: true,
       });
-
+      console.log("URL",`${config.API_URL}/proyecto/${id}/cronograma/${cronogramaId}/quitar-fase`)
+      console.log("FaseId",faseId)
       const response = await axios.get(`${config.API_URL}/proyecto/${id}/cronograma`, {
         withCredentials: true,
       });
@@ -215,9 +216,11 @@ const ProjectSchedule = () => {
                   <TableCell>Fase</TableCell>
                   <TableCell>Fecha Inicio</TableCell>
                   <TableCell>Fecha Fin</TableCell>
+                  <TableCell>Elementos de la Configuración</TableCell>
+                  <TableCell>Opciones (Agregar/Quitar ECS)</TableCell>
                   <TableCell>Progreso Inicio</TableCell>
                   <TableCell>Progreso Fin</TableCell>
-                  <TableCell>Opciones</TableCell>
+                  <TableCell>Opciones (Agregar/Quitar Fase)</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -225,66 +228,83 @@ const ProjectSchedule = () => {
                   phases.map((phase, index) => (
                     <TableRow key={phase._id}>
                       <TableCell>{index + 1}</TableCell>
-                      <TableCell>{phase.fase_id.nombre}</TableCell>
-                      <TableCell>{phase.fechaInicio}</TableCell>
-                      <TableCell>{phase.fechaFin}</TableCell>
+                      <TableCell>{phase.fase_id ? phase.fase_id.nombre : 'Sin Fase'}</TableCell>
+                      <TableCell>{new Date(phase.fechaInicio).toLocaleDateString()}</TableCell>
+                      <TableCell>{new Date(phase.fechaFin).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        {phase.cronogramaEcs && phase.cronogramaEcs.length > 0 ? (
+                          phase.cronogramaEcs.map((cronogramaEcs, ecsIndex) => (
+                            <Box key={ecsIndex} display="flex" alignItems="center">
+                              <Typography>{cronogramaEcs.ecs_id.nombre}</Typography>
+                              <Button variant="contained" color="secondary" size="small" onClick={() => handleRemoveEcs(phase._id, cronogramaEcs.ecs_id._id)}>Quitar</Button>
+                            </Box>
+                          ))
+                        ) : (
+                          <Typography>No hay ECS</Typography>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="contained" color="primary" size="small" onClick={() => handleAddEcs(phase._id)}>Agregar ECS</Button>
+                      </TableCell>
                       <TableCell>{phase.progresoInicio || 0}%</TableCell>
                       <TableCell>{phase.progresoFin || 0}%</TableCell>
                       <TableCell>
-                        <Button variant="contained" color="primary" size="small" onClick={() => handleAddEcs(phase._id)}>Agregar ECS</Button>
-                        {phase.ecs && phase.ecs.map((ecs, ecsIndex) => (
-                          <Box key={ecsIndex}>
-                            <Typography>{ecs.nombre}</Typography>
-                            <Button variant="contained" color="secondary" size="small" onClick={() => handleRemoveEcs(phase._id, ecs._id)}>Quitar ECS</Button>
-                          </Box>
-                        ))}
                         <Button variant="contained" color="secondary" size="small" onClick={() => handleRemovePhase(phase._id)}>Quitar Fase</Button>
                       </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={7} align="center">
+                    <TableCell colSpan={9} align="center">
                       No se encontraron fases
                     </TableCell>
                   </TableRow>
                 )}
+                <TableRow>
+                  <TableCell colSpan={2}>
+                    <FormControl sx={{ width: '100%' }}>
+                      <InputLabel>Fase</InputLabel>
+                      <Select
+                        value={selectedPhase}
+                        onChange={handlePhaseSelect}
+                        label="Fase"
+                      >
+                        {availablePhases.map((fase) => (
+                          <MenuItem key={fase._id} value={fase._id}>
+                            {fase.nombre}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+                  <TableCell>
+                    <TextField
+                      label="Fecha Inicio"
+                      type="date"
+                      value={fechaInicio}
+                      onChange={(e) => setFechaInicio(e.target.value)}
+                      InputLabelProps={{ shrink: true }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <TextField
+                      label="Fecha Fin"
+                      type="date"
+                      value={fechaFin}
+                      onChange={(e) => setFechaFin(e.target.value)}
+                      InputLabelProps={{ shrink: true }}
+                    />
+                  </TableCell>
+                  <TableCell colSpan={2}></TableCell>
+                  <TableCell colSpan={3}>
+                    <Button variant="contained" color="primary" onClick={handleAddPhase}>
+                      Agregar Fase
+                    </Button>
+                  </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </TableContainer>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-            <FormControl sx={{ width: '300px' }}>
-              <InputLabel>Fase</InputLabel>
-              <Select
-                value={selectedPhase}
-                onChange={handlePhaseSelect}
-                label="Fase"
-              >
-                {availablePhases.map((fase) => (
-                  <MenuItem key={fase._id} value={fase._id}>
-                    {fase.nombre}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <TextField
-              label="Fecha Inicio"
-              type="date"
-              value={fechaInicio}
-              onChange={(e) => setFechaInicio(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
-            <TextField
-              label="Fecha Fin"
-              type="date"
-              value={fechaFin}
-              onChange={(e) => setFechaFin(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
-            <Button variant="contained" color="primary" onClick={handleAddPhase}>
-              Agregar Fase
-            </Button>
-          </Box>
         </>
       )}
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
