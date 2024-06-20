@@ -10,11 +10,13 @@ const RegisterRequerimiento = () => {
   const [formData, setFormData] = useState({
     nombre: '',
     descripcion: '',
-    requerimientoModulo_id: ''
+    requerimientoModulo_id: '',
+    estado_id: '' // Añadido para el estado
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [modulos, setModulos] = useState([]);
+  const [estados, setEstados] = useState([]); // Añadido para los estados
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,7 +31,19 @@ const RegisterRequerimiento = () => {
       }
     };
 
+    const fetchEstados = async () => {
+      try {
+        const response = await axios.get(`${config.API_URL}/estado`, { // Asegúrate de que esta URL sea correcta
+          withCredentials: true,
+        });
+        setEstados(response.data.data || []);
+      } catch (error) {
+        console.error('Error fetching estados:', error);
+      }
+    };
+
     fetchModulos();
+    fetchEstados();
   }, []);
 
   const handleChange = (e) => {
@@ -103,6 +117,21 @@ const RegisterRequerimiento = () => {
               {modulos.map((modulo) => (
                 <MenuItem key={modulo._id} value={modulo._id}>
                   {modulo.nombre}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl variant="outlined" fullWidth margin="normal" required>
+            <InputLabel>Estado</InputLabel>
+            <Select
+              name="estado_id"
+              value={formData.estado_id}
+              onChange={handleChange}
+              label="Estado"
+            >
+              {estados.map((estado) => (
+                <MenuItem key={estado._id} value={estado._id}>
+                  {estado.nombre}
                 </MenuItem>
               ))}
             </Select>
