@@ -74,7 +74,7 @@ const ProjectManagementIndex = () => {
   };
 
   const handleMiembros = (id) => {
-    navigate(`/dashboard/project-management/${id}/miembros`);
+    navigate(`/dashboard/project-management/${id}/equipo`);
   };
 
   const handleRequerimientos = (id) => {

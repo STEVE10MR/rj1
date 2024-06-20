@@ -34,6 +34,10 @@ import RequerimentManagement from './views/Requerimiento/index';
 import RequerimentManagementRegister from './views/Requerimiento/register';
 import RequerimentManagementEdit from './views/Requerimiento/edit';
 
+import EquipoProyectoManagement from './views/EquipoProyecto/index';
+import EquipoProyectoManagementRegister from './views/EquipoProyecto/register';
+import EquipoProyectoManagementEdit from './views/EquipoProyecto/edit';
+
 import CronogramaManagement from './views/cronograma/edit';
 
 import ProjectSelection from './views/SelectProject';
@@ -72,6 +76,9 @@ function App() {
           <Route path="project-management/:id/requirement/register" element={<RequerimentManagementRegister />} />
           <Route path="project-management/:id/requirement/edit/:requirementId" element={<RequerimentManagementEdit />} />
           
+          <Route path="project-management/:id/equipo" element={<EquipoProyectoManagement />} />
+          <Route path="project-management/:id/equipo/register" element={<EquipoProyectoManagementRegister />} />
+          <Route path="project-management/:id/equipo/edit/:equipoId" element={<EquipoProyectoManagementEdit />} />
         </Route>
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
