@@ -132,6 +132,8 @@ const ProjectSchedule = () => {
       const response = await axios.get(`${config.API_URL}/metodologia/${metodologiaId}/fases/${faseId}/ecs`, {
         withCredentials: true,
       });
+      console.log("URL1",`${config.API_URL}/metodologia/${metodologiaId}/fases/${faseId}/ecs`)
+      console.log("FaseId1",faseId)
       setAvailableEcs(response.data.data || []);
     } catch (error) {
       console.error('Error al obtener ECS', error);
@@ -180,7 +182,8 @@ const ProjectSchedule = () => {
       }, {
         withCredentials: true,
       });
-
+      console.log("URL2",`${config.API_URL}/proyecto/${id}/cronograma/${cronogramaId}/quitar-ecs`)
+      console.log("FaseId2",faseId)
       const response = await axios.get(`${config.API_URL}/proyecto/${id}/cronograma`, {
         withCredentials: true,
       });
@@ -236,7 +239,7 @@ const ProjectSchedule = () => {
                           phase.cronogramaEcs.map((cronogramaEcs, ecsIndex) => (
                             <Box key={ecsIndex} display="flex" alignItems="center">
                               <Typography>{cronogramaEcs.ecs_id.nombre}</Typography>
-                              <Button variant="contained" color="secondary" size="small" onClick={() => handleRemoveEcs(phase._id, cronogramaEcs.ecs_id._id)}>Quitar</Button>
+                              <Button variant="contained" color="secondary" size="small" onClick={() => handleRemoveEcs(phase.fase_id._id, cronogramaEcs.ecs_id._id)}>Quitar</Button>
                             </Box>
                           ))
                         ) : (
@@ -244,12 +247,12 @@ const ProjectSchedule = () => {
                         )}
                       </TableCell>
                       <TableCell>
-                        <Button variant="contained" color="primary" size="small" onClick={() => handleAddEcs(phase._id)}>Agregar ECS</Button>
+                        <Button variant="contained" color="primary" size="small" onClick={() => handleAddEcs(phase.fase_id._id)}>Agregar ECS</Button>
                       </TableCell>
                       <TableCell>{phase.progresoInicio || 0}%</TableCell>
                       <TableCell>{phase.progresoFin || 0}%</TableCell>
                       <TableCell>
-                        <Button variant="contained" color="secondary" size="small" onClick={() => handleRemovePhase(phase._id)}>Quitar Fase</Button>
+                        <Button variant="contained" color="secondary" size="small" onClick={() => handleRemovePhase(phase.fase_id._id)}>Quitar Fase</Button>
                       </TableCell>
                     </TableRow>
                   ))
