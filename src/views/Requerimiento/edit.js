@@ -11,8 +11,7 @@ const EditRequerimiento = () => {
     nombre: '',
     descripcion: '',
     requerimientoModulo_id: '',
-    estado_id: '',
-    fechaFin: ''
+    estado_id: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -149,18 +148,6 @@ const EditRequerimiento = () => {
               ))}
             </Select>
           </FormControl>
-          <TextField
-            label="Fecha Fin"
-            name="fechaFin"
-            type="date"
-            value={formData.fechaFin}
-            onChange={handleChange}
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            InputLabelProps={{ shrink: true }}
-            required
-          />
           <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
             Actualizar
           </Button>
