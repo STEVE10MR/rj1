@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Box, Button, CircularProgress, Snackbar, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Container, Typography, Box, Button, CircularProgress, Snackbar, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Select, MenuItem, FormControl, InputLabel, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import config from '../../config';
 
@@ -12,9 +12,12 @@ const ProjectSchedule = () => {
   const [availablePhases, setAvailablePhases] = useState([]);
   const [selectedPhase, setSelectedPhase] = useState('');
   const [phases, setPhases] = useState([]);
+  const [availableEcs, setAvailableEcs] = useState([]);
+  const [selectedEcs, setSelectedEcs] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const navigate = useNavigate();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [currentPhaseId, setCurrentPhaseId] = useState('');
 
   useEffect(() => {
     const fetchSchedule = async () => {
@@ -29,12 +32,16 @@ const ProjectSchedule = () => {
         setPhases(cronograma.cronogramaFase || []);
         setLoading(false);
       } catch (error) {
-        setSnackbarMessage('Error fetching schedule');
+        setSnackbarMessage('Error al obtener el cronograma');
         setSnackbarOpen(true);
         setLoading(false);
       }
     };
 
+    fetchSchedule();
+  }, [id]);
+
+  useEffect(() => {
     const fetchAvailablePhases = async () => {
       try {
         if (metodologiaId) {
@@ -44,21 +51,38 @@ const ProjectSchedule = () => {
           setAvailablePhases(response.data.data || []);
         }
       } catch (error) {
-        console.error('Error fetching available phases:', error);
+        console.error('Error al obtener fases', error);
       }
     };
 
-    fetchSchedule();
+    const fetchAvailableEcs = async () => {
+      try {
+        if (metodologiaId) {
+          const response = await axios.get(`${config.API_URL}/metodologia/${metodologiaId}/ecs`, {
+            withCredentials: true,
+          });
+          setAvailableEcs(response.data.data || []);
+        }
+      } catch (error) {
+        console.error('Error al obtener ECS', error);
+      }
+    };
+
     fetchAvailablePhases();
-  }, [id, metodologiaId]);
+    fetchAvailableEcs();
+  }, [metodologiaId]);
 
   const handlePhaseSelect = (e) => {
     setSelectedPhase(e.target.value);
   };
 
+  const handleEcsSelect = (e) => {
+    setSelectedEcs(e.target.value);
+  };
+
   const handleAddPhase = async () => {
     if (!selectedPhase) {
-      setSnackbarMessage('Please select a phase to add');
+      setSnackbarMessage('Selecciona una fase por favor');
       setSnackbarOpen(true);
       return;
     }
@@ -77,11 +101,100 @@ const ProjectSchedule = () => {
 
       const cronograma = response.data.data;
       setPhases(cronograma.cronogramaFase || []);
-      setSnackbarMessage('Phase added successfully');
+      setSnackbarMessage('Fase agregada');
       setSnackbarOpen(true);
       setLoading(false);
     } catch (error) {
-      setSnackbarMessage('Error adding phase');
+      setSnackbarMessage('Error al agregar fase');
+      setSnackbarOpen(true);
+      setLoading(false);
+    }
+  };
+
+  const handleRemovePhase = async (faseId) => {
+    setLoading(true);
+    try {
+      await axios.patch(`${config.API_URL}/proyecto/${id}/cronograma/${cronogramaId}/quitar-fase`, {
+        faseId
+      }, {
+        withCredentials: true,
+      });
+
+      const response = await axios.get(`${config.API_URL}/proyecto/${id}/cronograma`, {
+        withCredentials: true,
+      });
+
+      const cronograma = response.data.data;
+      setPhases(cronograma.cronogramaFase || []);
+      setSnackbarMessage('Fase eliminada');
+      setSnackbarOpen(true);
+      setLoading(false);
+    } catch (error) {
+      setSnackbarMessage('Error al eliminar fase');
+      setSnackbarOpen(true);
+      setLoading(false);
+    }
+  };
+
+  const handleAddEcs = (faseId) => {
+    setCurrentPhaseId(faseId);
+    setDialogOpen(true);
+  };
+
+  const handleConfirmAddEcs = async () => {
+    if (!selectedEcs) {
+      setSnackbarMessage('Selecciona un ECS por favor');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await axios.patch(`${config.API_URL}/proyecto/${id}/cronograma/${cronogramaId}/agregar-ecs`, {
+        faseId: currentPhaseId,
+        ecsId: selectedEcs
+      }, {
+        withCredentials: true,
+      });
+
+      const response = await axios.get(`${config.API_URL}/proyecto/${id}/cronograma`, {
+        withCredentials: true,
+      });
+
+      const cronograma = response.data.data;
+      setPhases(cronograma.cronogramaFase || []);
+      setSnackbarMessage('ECS agregado');
+      setSnackbarOpen(true);
+      setDialogOpen(false);
+      setLoading(false);
+    } catch (error) {
+      setSnackbarMessage('Error al agregar ECS');
+      setSnackbarOpen(true);
+      setLoading(false);
+    }
+  };
+
+  const handleRemoveEcs = async (faseId, ecsId) => {
+    setLoading(true);
+    try {
+      await axios.patch(`${config.API_URL}/proyecto/${id}/cronograma/${cronogramaId}/quitar-ecs`, {
+        faseId,
+        ecsId
+      }, {
+        withCredentials: true,
+      });
+
+      const response = await axios.get(`${config.API_URL}/proyecto/${id}/cronograma`, {
+        withCredentials: true,
+      });
+
+      const cronograma = response.data.data;
+      setPhases(cronograma.cronogramaFase || []);
+      setSnackbarMessage('ECS eliminado');
+      setSnackbarOpen(true);
+      setLoading(false);
+    } catch (error) {
+      setSnackbarMessage('Error al eliminar ECS');
       setSnackbarOpen(true);
       setLoading(false);
     }
@@ -104,8 +217,11 @@ const ProjectSchedule = () => {
                 <TableRow>
                   <TableCell>Num</TableCell>
                   <TableCell>Fase</TableCell>
+                  <TableCell>Fecha Inicio</TableCell>
+                  <TableCell>Fecha Fin</TableCell>
                   <TableCell>Progreso Inicio</TableCell>
                   <TableCell>Progreso Fin</TableCell>
+                  <TableCell>Opciones</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -114,13 +230,19 @@ const ProjectSchedule = () => {
                     <TableRow key={phase._id}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>{phase.fase_id.nombre}</TableCell>
+                      <TableCell>{phase.fechaInicio}</TableCell>
+                      <TableCell>{phase.fechaFin}</TableCell>
                       <TableCell>{phase.progresoInicio || 0}%</TableCell>
                       <TableCell>{phase.progresoFin || 0}%</TableCell>
+                      <TableCell>
+                        <Button variant="contained" color="primary" size="small" onClick={() => handleAddEcs(phase._id)}>Agregar ECS</Button>
+                        <Button variant="contained" color="secondary" size="small" onClick={() => handleRemovePhase(phase._id)}>Eliminar Fase</Button>
+                      </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} align="center">
+                    <TableCell colSpan={7} align="center">
                       No se encontraron fases
                     </TableCell>
                   </TableRow>
@@ -149,8 +271,38 @@ const ProjectSchedule = () => {
           </Box>
         </>
       )}
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+        <DialogTitle>Agregar ECS</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Selecciona el ECS que deseas agregar a la fase.
+          </DialogContentText>
+          <FormControl sx={{ width: '100%' }}>
+            <InputLabel>ECS</InputLabel>
+            <Select
+              value={selectedEcs}
+              onChange={handleEcsSelect}
+              label="ECS"
+            >
+              {availableEcs.map((ecs) => (
+                <MenuItem key={ecs._id} value={ecs._id}>
+                  {ecs.nombre}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDialogOpen(false)} color="secondary">
+            Cancelar
+          </Button>
+          <Button onClick={handleConfirmAddEcs} color="primary">
+            Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity="error" sx={{ width: '100%' }}>
+        <Alert onClose={handleSnackbarClose} severity={snackbarMessage.includes('Error') ? 'error' : 'success'} sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
