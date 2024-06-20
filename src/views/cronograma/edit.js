@@ -57,21 +57,7 @@ const ProjectSchedule = () => {
       }
     };
 
-    const fetchAvailableEcs = async () => {
-      try {
-        if (metodologiaId) {
-          const response = await axios.get(`${config.API_URL}/metodologia/${metodologiaId}/ecs`, {
-            withCredentials: true,
-          });
-          setAvailableEcs(response.data.data || []);
-        }
-      } catch (error) {
-        console.error('Error al obtener ECS', error);
-      }
-    };
-
     fetchAvailablePhases();
-    fetchAvailableEcs();
   }, [metodologiaId]);
 
   const handlePhaseSelect = (e) => {
@@ -138,9 +124,17 @@ const ProjectSchedule = () => {
     }
   };
 
-  const handleAddEcs = (faseId) => {
+  const handleAddEcs = async (faseId) => {
     setCurrentPhaseId(faseId);
     setDialogOpen(true);
+    try {
+      const response = await axios.get(`${config.API_URL}/metodologia/${metodologiaId}/fases/${faseId}/ecs`, {
+        withCredentials: true,
+      });
+      setAvailableEcs(response.data.data || []);
+    } catch (error) {
+      console.error('Error al obtener ECS', error);
+    }
   };
 
   const handleConfirmAddEcs = async () => {
@@ -238,7 +232,13 @@ const ProjectSchedule = () => {
                       <TableCell>{phase.progresoFin || 0}%</TableCell>
                       <TableCell>
                         <Button variant="contained" color="primary" size="small" onClick={() => handleAddEcs(phase._id)}>Agregar ECS</Button>
-                        <Button variant="contained" color="secondary" size="small" onClick={() => handleRemovePhase(phase._id)}>Eliminar Fase</Button>
+                        {phase.ecs && phase.ecs.map((ecs, ecsIndex) => (
+                          <Box key={ecsIndex}>
+                            <Typography>{ecs.nombre}</Typography>
+                            <Button variant="contained" color="secondary" size="small" onClick={() => handleRemoveEcs(phase._id, ecs._id)}>Quitar ECS</Button>
+                          </Box>
+                        ))}
+                        <Button variant="contained" color="secondary" size="small" onClick={() => handleRemovePhase(phase._id)}>Quitar Fase</Button>
                       </TableCell>
                     </TableRow>
                   ))
