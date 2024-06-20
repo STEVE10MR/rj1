@@ -68,9 +68,9 @@ function App() {
           <Route path="project-management/register" element={<ProjectRequerimentManagementRegister />} />
           <Route path="project-management/:id/cronograma" element={<CronogramaManagement />} />
 
-          <Route path="project-management/:id/requeriment" element={<RequerimentManagement />} />
-          <Route path="project-management/:id/requeriment/register" element={<RequerimentManagementRegister />} />
-          <Route path="project-management/:id/requeriment/edit/:IdRequeriment" element={<RequerimentManagementEdit />} />
+          <Route path="project-management/:id/requirement" element={<RequerimentManagement />} />
+          <Route path="project-management/:id/requirement/register" element={<RequerimentManagementRegister />} />
+          <Route path="project-management/:id/requirement/edit/:requirementId" element={<RequerimentManagementEdit />} />
           
         </Route>
         <Route path="*" element={<Navigate to="/" />} />
