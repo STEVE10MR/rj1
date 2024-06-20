@@ -76,7 +76,7 @@ const EditRequerimiento = () => {
       });
       console.log('Requerimiento actualizado:', response.data);
       setLoading(false);
-      navigate(`/project-management/${id}/requirement`);
+      navigate(`/dashboard/project-management/${id}/requirement`);
     } catch (error) {
       console.error('Error actualizando requerimiento:', error);
       setError('Error actualizando requerimiento');
@@ -87,7 +87,7 @@ const EditRequerimiento = () => {
   return (
     <Container>
       <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
-        <IconButton onClick={() => navigate(`/project-management/${id}/requirement`)}>
+        <IconButton onClick={() => navigate(`/dashboard/project-management/${id}/requirement`)}>
           <ArrowBack />
         </IconButton>
         <Typography variant="h4" sx={{ ml: 1 }}>Editar Requerimiento</Typography>

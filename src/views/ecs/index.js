@@ -70,7 +70,7 @@ const ECSIndex = () => {
   return (
     <Container>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-        <IconButton onClick={() => navigate(`/metodologia/${id}/fases`)}>
+        <IconButton onClick={() => navigate(`/dashboard/metodologia/${id}/fases`)}>
           <ArrowBack />
         </IconButton>
         <Typography variant="h4" sx={{ ml: 1 }}>Elementos de Configuración del Software</Typography>

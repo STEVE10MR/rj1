@@ -61,11 +61,11 @@ const RequerimientosIndex = () => {
   };
 
   const handleRegister = () => {
-    navigate(`/project-management/${id}/requirement/register`);
+    navigate(`/dashboard/project-management/${id}/requirement/register`);
   };
 
   const handleEdit = (requirementId) => {
-    navigate(`/project-management/${id}/requirement/edit/${requirementId}`);
+    navigate(`/dashboard/project-management/${id}/requirement/edit/${requirementId}`);
   };
 
   return (

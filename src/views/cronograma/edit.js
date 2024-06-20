@@ -203,7 +203,7 @@ const ProjectSchedule = () => {
   };
 
   const handleBackToProjectManagement = () => {
-    navigate('/project-management');
+    navigate('/dashboard/project-management');
   };
 
   return (

@@ -49,7 +49,7 @@ const RegisterRequerimiento = () => {
       });
       console.log('Requerimiento registrado:', response.data);
       setLoading(false);
-      navigate(`/project-management/${id}/requirement`);
+      navigate(`/dashboard/project-management/${id}/requirement`);
     } catch (error) {
       console.error('Error registrando requerimiento:', error);
       setError('Error registrando requerimiento');
@@ -60,7 +60,7 @@ const RegisterRequerimiento = () => {
   return (
     <Container>
       <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
-        <IconButton onClick={() => navigate(`/project-management/${id}/requirement`)}>
+        <IconButton onClick={() => navigate(`/dashboard/project-management/${id}/requirement`)}>
           <ArrowBack />
         </IconButton>
         <Typography variant="h4" sx={{ ml: 1 }}>Registrar Requerimiento</Typography>
