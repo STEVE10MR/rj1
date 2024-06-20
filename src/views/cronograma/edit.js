@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Box, Button, CircularProgress, Snackbar, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Select, MenuItem, FormControl, InputLabel, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
-import { useParams } from 'react-router-dom';
+import {
+  Container, Typography, Box, Button, CircularProgress, Snackbar, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
+  Select, MenuItem, FormControl, InputLabel, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField
+} from '@mui/material';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import config from '../../config';
 
 const ProjectSchedule = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [cronogramaId, setCronogramaId] = useState('');
   const [metodologiaId, setMetodologiaId] = useState('');
@@ -107,8 +111,6 @@ const ProjectSchedule = () => {
       }, {
         withCredentials: true,
       });
-      console.log("URL",`${config.API_URL}/proyecto/${id}/cronograma/${cronogramaId}/quitar-fase`)
-      console.log("FaseId",faseId)
       const response = await axios.get(`${config.API_URL}/proyecto/${id}/cronograma`, {
         withCredentials: true,
       });
@@ -132,8 +134,6 @@ const ProjectSchedule = () => {
       const response = await axios.get(`${config.API_URL}/metodologia/${metodologiaId}/fases/${faseId}/ecs`, {
         withCredentials: true,
       });
-      console.log("URL1",`${config.API_URL}/metodologia/${metodologiaId}/fases/${faseId}/ecs`)
-      console.log("FaseId1",faseId)
       setAvailableEcs(response.data.data || []);
     } catch (error) {
       console.error('Error al obtener ECS', error);
@@ -182,8 +182,6 @@ const ProjectSchedule = () => {
       }, {
         withCredentials: true,
       });
-      console.log("URL2",`${config.API_URL}/proyecto/${id}/cronograma/${cronogramaId}/quitar-ecs`)
-      console.log("FaseId2",faseId)
       const response = await axios.get(`${config.API_URL}/proyecto/${id}/cronograma`, {
         withCredentials: true,
       });
@@ -204,11 +202,20 @@ const ProjectSchedule = () => {
     setSnackbarOpen(false);
   };
 
+  const handleBackToProjectManagement = () => {
+    navigate('/project-management');
+  };
+
   return (
     <Container>
       <Typography variant="h4" gutterBottom>Gestionar Cronograma</Typography>
+      <Button variant="contained" color="secondary" onClick={handleBackToProjectManagement}>
+        Terminar configuracion de Cronograma
+      </Button>
       {loading ? (
-        <CircularProgress />
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+          <CircularProgress />
+        </Box>
       ) : (
         <>
           <TableContainer component={Paper}>

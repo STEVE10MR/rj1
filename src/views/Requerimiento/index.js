@@ -2,24 +2,23 @@ import React, { useEffect, useState } from 'react';
 import { Box, Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Typography, Pagination, CircularProgress, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
 import axios from 'axios';
 import config from '../../config';
-import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
-import * as ManagerCookies from "../ManagerCookies";
+import { useNavigate, useParams } from 'react-router-dom';
 
-const ProjectManagementIndex = () => {
-  const [projects, setProjects] = useState([]);
+const RequerimientosIndex = () => {
+  const { id } = useParams();
+  const [requerimientos, setRequerimientos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [sortField, setSortField] = useState('createdAt');
   const navigate = useNavigate();
-  const [user, setUser] = useState({ role: null, token: null });
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchRequerimientos = async () => {
+      setLoading(true);
       try {
-        const response = await axios.get(`${config.API_URL}/proyecto`, {
+        const response = await axios.get(`${config.API_URL}/proyecto/${id}/requerimiento`, {
           params: {
             limit: rowsPerPage,
             sort: sortField,
@@ -27,22 +26,22 @@ const ProjectManagementIndex = () => {
           },
           withCredentials: true,
         });
-        const userRole = ManagerCookies.getCookie('userRole');
-        setUser({ role: userRole });
+
         if (response.data && response.data.data) {
-          setProjects(response.data.data);
+          setRequerimientos(response.data.data);
         } else {
-          setProjects([]);
+          setRequerimientos([]);
         }
         setLoading(false);
       } catch (error) {
-        console.log('Error fetching projects:', error);
-        setProjects([]);
+        console.log('Error fetching requerimientos:', error);
+        setRequerimientos([]);
         setLoading(false);
       }
     };
-    fetchProjects();
-  }, [page, rowsPerPage, search, sortField]);
+
+    fetchRequerimientos();
+  }, [id, page, rowsPerPage, search, sortField]);
 
   const handleSearchChange = (event) => {
     setSearch(event.target.value);
@@ -54,7 +53,7 @@ const ProjectManagementIndex = () => {
 
   const handleRowsPerPageChange = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(1); // Reset to first page
+    setPage(1);
   };
 
   const handleSortFieldChange = (event) => {
@@ -62,36 +61,22 @@ const ProjectManagementIndex = () => {
   };
 
   const handleRegister = () => {
-    navigate('/dashboard/project-management/register');
+    navigate(`/project-management/${id}/requirement/register`);
   };
 
-  const handleEdit = (id) => {
-    navigate(`/dashboard/project-management/edit/${id}`);
-  };
-
-  const handleGet = (id) => {
-    navigate(`/dashboard/project-management/${id}`);
-  };
-
-  const handleMiembros = (id) => {
-    navigate(`/dashboard/project-management/${id}/miembros`);
-  };
-
-  const handleRequerimientos = (id) => {
-    navigate(`/dashboard/project-management/${id}/requirement`);
+  const handleEdit = (requirementId) => {
+    navigate(`/project-management/${id}/requirement/edit/${requirementId}`);
   };
 
   return (
     <Container>
-      <Typography variant="h4" gutterBottom>Gestión de Proyectos</Typography>
-      {user.role === 'jefe proyecto' && (
-        <Button variant="contained" color="primary" onClick={handleRegister} sx={{ mb: 2 }}>
-          Registrar Proyecto
-        </Button>
-      )}
+      <Typography variant="h4" gutterBottom>Gestión de Requerimientos del Proyecto</Typography>
+      <Button variant="contained" color="primary" onClick={handleRegister} sx={{ mb: 2 }}>
+        Registrar Requerimiento
+      </Button>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <TextField
-          label="Nombre del Proyecto"
+          label="Buscar Requerimiento"
           variant="outlined"
           value={search}
           onChange={handleSearchChange}
@@ -130,39 +115,25 @@ const ProjectManagementIndex = () => {
               <TableRow>
                 <TableCell>Nombre</TableCell>
                 <TableCell>Descripción</TableCell>
-                <TableCell>Fecha de Inicio</TableCell>
-                <TableCell>Fecha de Fin</TableCell>
                 <TableCell>Opciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {projects.length > 0 ? (
-                projects.map(project => (
-                  <TableRow key={project._id}>
-                    <TableCell>{project.nombre}</TableCell>
-                    <TableCell>{project.descripcion}</TableCell>
-                    <TableCell>{new Date(project.fechaInicio).toLocaleDateString()}</TableCell>
-                    <TableCell>{new Date(project.fechaFin).toLocaleDateString()}</TableCell>
-                    {user.role === 'jefe proyecto' && (
-                      <TableCell>
-                        <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleGet(project._id)}>VER</Button>
-                        <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(project._id)}>EDITAR</Button>
-                        <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleMiembros(project._id)}>MIEMBROS</Button>
-                        <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleRequerimientos(project._id)}>REQUERIMIENTOS</Button>
-                        <Button variant="contained" color="error">ELIMINAR</Button>
-                      </TableCell>
-                    )}
-                    {user.role === 'user' && (
-                      <TableCell>
-                        <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleGet(project._id)}>VER</Button>
-                      </TableCell>
-                    )}
+              {requerimientos.length > 0 ? (
+                requerimientos.map(requerimiento => (
+                  <TableRow key={requerimiento._id}>
+                    <TableCell>{requerimiento.nombre}</TableCell>
+                    <TableCell>{requerimiento.descripcion}</TableCell>
+                    <TableCell>
+                      <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(requerimiento._id)}>EDITAR</Button>
+                      <Button variant="contained" color="error">ELIMINAR</Button>
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} align="center">
-                    No se encontraron proyectos
+                  <TableCell colSpan={3} align="center">
+                    No se encontraron requerimientos
                   </TableCell>
                 </TableRow>
               )}
@@ -172,7 +143,7 @@ const ProjectManagementIndex = () => {
       )}
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
         <Pagination
-          count={Math.ceil(projects.length / rowsPerPage)}
+          count={Math.ceil(requerimientos.length / rowsPerPage)}
           page={page}
           onChange={handlePageChange}
           color="primary"
@@ -182,4 +153,4 @@ const ProjectManagementIndex = () => {
   );
 };
 
-export default ProjectManagementIndex;
+export default RequerimientosIndex;
