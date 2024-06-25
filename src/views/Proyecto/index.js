@@ -16,37 +16,38 @@ const ProjectManagementIndex = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState({ role: null, token: null });
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      setLoading(true);
-      try {
-        let active = true;
-        const userRole = ManagerCookies.getCookie('userRole');
-        setUser({ role: userRole });
-        if (['admin', 'jefe proyecto'].includes(userRole)) {
-          active = undefined;
-        }
-        const response = await axios.get(`${config.API_URL}/proyecto`, {
-          params: {
-            limit: rowsPerPage,
-            sort: sortField,
-            [`or[0][0][nombre][regex]`]: search,
-            active
-          },
-          withCredentials: true,
-        });
-        if (response.data && response.data.data) {
-          setProjects(response.data.data);
-        } else {
-          setProjects([]);
-        }
-        setLoading(false);
-      } catch (error) {
-        console.log('Error fetching projects:', error);
-        setProjects([]);
-        setLoading(false);
+  const fetchProjects = async () => {
+    setLoading(true);
+    try {
+      let active = true;
+      const userRole = ManagerCookies.getCookie('userRole');
+      setUser({ role: userRole });
+      if (['admin', 'jefe proyecto'].includes(userRole)) {
+        active = undefined;
       }
-    };
+      const response = await axios.get(`${config.API_URL}/proyecto`, {
+        params: {
+          limit: rowsPerPage,
+          sort: sortField,
+          [`or[0][0][nombre][regex]`]: search,
+          active
+        },
+        withCredentials: true,
+      });
+      if (response.data && response.data.data) {
+        setProjects(response.data.data);
+      } else {
+        setProjects([]);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.log('Error fetching projects:', error);
+      setProjects([]);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchProjects();
   }, [page, rowsPerPage, search, sortField]);
 
@@ -75,8 +76,8 @@ const ProjectManagementIndex = () => {
     navigate(`/dashboard/project-management/edit/${id}`);
   };
 
-  const handleGet = (id) => {
-    navigate(`/dashboard/project-management/${id}`);
+  const handleCronograma = (id) => {
+    navigate(`/dashboard/project-management/${id}/cronograma`);
   };
 
   const handleMiembros = (id) => {
@@ -175,6 +176,7 @@ const ProjectManagementIndex = () => {
                       {user.role === 'jefe proyecto' && (
                         <>
                           <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(project._id)}>EDITAR</Button>
+                          <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleCronograma(project._id)}>CRONOGRAMA</Button>
                           <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleMiembros(project._id)}>MIEMBROS</Button>
                           <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleRequerimientos(project._id)}>REQUERIMIENTOS</Button>
                           {project.active ? (

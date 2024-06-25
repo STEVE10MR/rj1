@@ -50,6 +50,7 @@ const RegisterProject = () => {
     e.preventDefault();
     setLoading(true);
     try {
+  
       const response = await axios.post(`${config.API_URL}/proyecto`, projectData, {
         withCredentials: true,
       });
