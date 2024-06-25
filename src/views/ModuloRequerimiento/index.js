@@ -3,7 +3,8 @@ import { Box, Container, Table, TableBody, TableCell, TableContainer, TableHead,
 import axios from 'axios';
 import config from '../../config';
 import { useNavigate } from 'react-router-dom';
-import * as ManagerCookies from "../ManagerCookies"
+import * as ManagerCookies from "../ManagerCookies";
+
 const ModulosRequerimientoIndex = () => {
   const [modulos, setModulos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,16 +14,22 @@ const ModulosRequerimientoIndex = () => {
   const [sortField, setSortField] = useState('createdAt');
   const navigate = useNavigate();
   
-
+  const userRole = ManagerCookies.getCookie('userRole');
 
   useEffect(() => {
     const fetchModulos = async () => {
       try {
+        let active = true;
+        if (['admin', 'jefe proyecto'].includes(userRole)) {
+          active = undefined;
+        }
+
         const response = await axios.get(`${config.API_URL}/moduloRequerimiento`, {
           params: {
             limit: rowsPerPage,
             sort: sortField,
-            [`or[0][0][nombre][regex]`]: search
+            [`or[0][0][nombre][regex]`]: search,
+            active
           },
           withCredentials: true,
         });
@@ -40,7 +47,7 @@ const ModulosRequerimientoIndex = () => {
       }
     };
     fetchModulos();
-  }, [page, rowsPerPage, search, sortField]);
+  }, [page, rowsPerPage, search, sortField, userRole]);
 
   const handleSearchChange = (event) => {
     setSearch(event.target.value);
@@ -65,6 +72,28 @@ const ModulosRequerimientoIndex = () => {
 
   const handleEdit = (id) => {
     navigate(`/dashboard/module-requirement/${id}`);
+  };
+
+  const handleActivar = async (id) => {
+    try {
+      await axios.patch(`${config.API_URL}/moduloRequerimiento/${id}/activar`, {}, {
+        withCredentials: true,
+      });
+      fetchModulos();
+    } catch (error) {
+      console.log('Error activating modulo:', error);
+    }
+  };
+
+  const handleDesactivar = async (id) => {
+    try {
+      await axios.patch(`${config.API_URL}/moduloRequerimiento/${id}/desactivar`, {}, {
+        withCredentials: true,
+      });
+      fetchModulos();
+    } catch (error) {
+      console.log('Error deactivating modulo:', error);
+    }
   };
 
   return (
@@ -124,11 +153,18 @@ const ModulosRequerimientoIndex = () => {
                     <TableCell>{modulo.nombre}</TableCell>
                     <TableCell>{modulo.descripcion}</TableCell>
                     <TableCell>
-                      {['admin','jefe proyecto'].includes(localStorage.getItem('userRole')) && (
-                        <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(modulo._id)}>EDITAR</Button>
-                      )}
-                      {['admin','jefe proyecto'].includes(localStorage.getItem('userRole')) && (
-                        <Button variant="contained" color="error">ELIMINAR</Button>
+                      <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(modulo._id)}>
+                        EDITAR
+                      </Button>
+                      {['admin', 'jefe proyecto'].includes(userRole) && (
+                        <>
+                          <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleActivar(modulo._id)}>
+                            ACTIVAR
+                          </Button>
+                          <Button variant="contained" color="error" onClick={() => handleDesactivar(modulo._id)}>
+                            DESACTIVAR
+                          </Button>
+                        </>
                       )}
                     </TableCell>
                   </TableRow>
