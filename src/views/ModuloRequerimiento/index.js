@@ -158,12 +158,15 @@ const ModulosRequerimientoIndex = () => {
                       </Button>
                       {['admin', 'jefe proyecto'].includes(userRole) && (
                         <>
-                          <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleActivar(modulo._id)}>
-                            ACTIVAR
-                          </Button>
-                          <Button variant="contained" color="error" onClick={() => handleDesactivar(modulo._id)}>
-                            DESACTIVAR
-                          </Button>
+                          {modulo.active ? (
+                            <Button variant="contained" color="error" onClick={() => handleDesactivar(modulo._id)}>
+                              DESACTIVAR
+                            </Button>
+                          ) : (
+                            <Button variant="contained" color="primary" onClick={() => handleActivar(modulo._id)}>
+                              ACTIVAR
+                            </Button>
+                          )}
                         </>
                       )}
                     </TableCell>
