@@ -177,8 +177,11 @@ const ProjectManagementIndex = () => {
                           <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(project._id)}>EDITAR</Button>
                           <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleMiembros(project._id)}>MIEMBROS</Button>
                           <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleRequerimientos(project._id)}>REQUERIMIENTOS</Button>
-                          <Button variant="contained" color="error" onClick={() => handleDesactivar(project._id)}>DESACTIVAR</Button>
-                          <Button variant="contained" color="primary" onClick={() => handleActivar(project._id)}>ACTIVAR</Button>
+                          {project.active ? (
+                            <Button variant="contained" color="error" onClick={() => handleDesactivar(project._id)}>DESACTIVAR</Button>
+                          ) : (
+                            <Button variant="contained" color="primary" onClick={() => handleActivar(project._id)}>ACTIVAR</Button>
+                          )}
                         </>
                       )}
                     </TableCell>

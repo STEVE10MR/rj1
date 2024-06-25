@@ -3,6 +3,7 @@ import { Box, Container, Table, TableBody, TableCell, TableContainer, TableHead,
 import axios from 'axios';
 import config from '../../config';
 import { useNavigate, useParams } from 'react-router-dom';
+import * as ManagerCookies from "../ManagerCookies";
 
 const RequerimientosIndex = () => {
   const { id } = useParams();
@@ -14,34 +15,47 @@ const RequerimientosIndex = () => {
   const [sortField, setSortField] = useState('createdAt');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchRequerimientos = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(`${config.API_URL}/proyecto/${id}/requerimiento`, {
-          params: {
-            limit: rowsPerPage,
-            sort: sortField,
-            [`or[0][0][nombre][regex]`]: search
-          },
-          withCredentials: true,
-        });
+  const userRole = ManagerCookies.getCookie('userRole');
 
-        if (response.data && response.data.data) {
-          setRequerimientos(response.data.data);
-        } else {
-          setRequerimientos([]);
-        }
-        setLoading(false);
-      } catch (error) {
-        console.log('Error fetching requerimientos:', error);
-        setRequerimientos([]);
-        setLoading(false);
+  const fetchRequerimientos = async () => {
+    setLoading(true);
+    try {
+      let active = true;
+      if (['admin', 'jefe proyecto'].includes(userRole)) {
+        active = undefined;
       }
-    };
 
+      const params = {
+        limit: rowsPerPage,
+        sort: sortField,
+        active,
+        $or: [
+          { 'nombre': { $regex: search, $options: 'i' } },
+          { 'descripcion': { $regex: search, $options: 'i' } }
+        ]
+      };
+
+      const response = await axios.get(`${config.API_URL}/proyecto/${id}/requerimiento`, {
+        params: params,
+        withCredentials: true,
+      });
+
+      if (response.data && response.data.data) {
+        setRequerimientos(response.data.data);
+      } else {
+        setRequerimientos([]);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.log('Error fetching requerimientos:', error);
+      setRequerimientos([]);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchRequerimientos();
-  }, [id, page, rowsPerPage, search, sortField]);
+  }, [id, page, rowsPerPage, search, sortField, userRole]);
 
   const handleSearchChange = (event) => {
     setSearch(event.target.value);
@@ -66,6 +80,28 @@ const RequerimientosIndex = () => {
 
   const handleEdit = (requirementId) => {
     navigate(`/dashboard/project-management/${id}/requirement/edit/${requirementId}`);
+  };
+
+  const handleActivar = async (requirementId) => {
+    try {
+      await axios.patch(`${config.API_URL}/proyecto/${id}/requerimiento/${requirementId}/activar`, {}, {
+        withCredentials: true,
+      });
+      fetchRequerimientos(); // Llamada para actualizar la lista de requerimientos
+    } catch (error) {
+      console.log('Error activating requerimiento:', error);
+    }
+  };
+
+  const handleDesactivar = async (requirementId) => {
+    try {
+      await axios.patch(`${config.API_URL}/proyecto/${id}/requerimiento/${requirementId}/desactivar`, {}, {
+        withCredentials: true,
+      });
+      fetchRequerimientos(); // Llamada para actualizar la lista de requerimientos
+    } catch (error) {
+      console.log('Error deactivating requerimiento:', error);
+    }
   };
 
   return (
@@ -125,8 +161,20 @@ const RequerimientosIndex = () => {
                     <TableCell>{requerimiento.nombre}</TableCell>
                     <TableCell>{requerimiento.descripcion}</TableCell>
                     <TableCell>
-                      <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(requerimiento._id)}>EDITAR</Button>
-                      <Button variant="contained" color="error">ELIMINAR</Button>
+                      {['admin','jefe proyecto'].includes(userRole) && (
+                        <>
+                          <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(requerimiento._id)}>EDITAR</Button>
+                          {requerimiento.active ? (
+                            <Button variant="contained" color="error" onClick={() => handleDesactivar(requerimiento._id)}>
+                              DESACTIVAR
+                            </Button>
+                          ) : (
+                            <Button variant="contained" color="primary" onClick={() => handleActivar(requerimiento._id)}>
+                              ACTIVAR
+                            </Button>
+                          )}
+                        </>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

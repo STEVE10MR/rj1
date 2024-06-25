@@ -11,12 +11,10 @@ const EditRequerimiento = () => {
     nombre: '',
     descripcion: '',
     requerimientoModulo_id: '',
-    estado_id: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [modulos, setModulos] = useState([]);
-  const [estados, setEstados] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,18 +28,6 @@ const EditRequerimiento = () => {
         console.error('Error fetching modulos:', error);
       }
     };
-
-    const fetchEstados = async () => {
-      try {
-        const response = await axios.get(`${config.API_URL}/estado`, {
-          withCredentials: true,
-        });
-        setEstados(response.data.data || []);
-      } catch (error) {
-        console.error('Error fetching estados:', error);
-      }
-    };
-
     const fetchRequerimiento = async () => {
       try {
         const response = await axios.get(`${config.API_URL}/proyecto/${id}/requerimiento/${requirementId}`, {
@@ -54,7 +40,6 @@ const EditRequerimiento = () => {
     };
 
     fetchModulos();
-    fetchEstados();
     fetchRequerimiento();
   }, [id, requirementId]);
 
@@ -129,21 +114,6 @@ const EditRequerimiento = () => {
               {modulos.map((modulo) => (
                 <MenuItem key={modulo._id} value={modulo._id}>
                   {modulo.nombre}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl variant="outlined" fullWidth margin="normal" required>
-            <InputLabel>Estado</InputLabel>
-            <Select
-              name="estado_id"
-              value={formData.estado_id}
-              onChange={handleChange}
-              label="Estado"
-            >
-              {estados.map((estado) => (
-                <MenuItem key={estado._id} value={estado._id}>
-                  {estado.nombre}
                 </MenuItem>
               ))}
             </Select>

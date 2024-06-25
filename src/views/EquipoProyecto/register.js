@@ -32,7 +32,7 @@ const RegisterEquipoProyecto = () => {
 
     const fetchUsuarios = async () => {
       try {
-        const response = await axios.get(`${config.API_URL}/usuario`, {
+        const response = await axios.get(`${config.API_URL}/usuario/obtenerUsuarios`, {
           params: { active: true, role: 'user' },
           withCredentials: true,
         });

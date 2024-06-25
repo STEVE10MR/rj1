@@ -24,13 +24,20 @@ const EquipoProyectoManagement = () => {
       if (['admin', 'jefe proyecto'].includes(userRole)) {
         active = undefined;
       }
+
+      const params = {
+        limit: rowsPerPage,
+        sort: sortField,
+        active,
+        $or: [
+          { 'user_id.name': { $regex: search, $options: 'i' } },
+          { 'user_id.email': { $regex: search, $options: 'i' } },
+          { 'rolEquipo_id.nombre': { $regex: search, $options: 'i' } }
+        ]
+      };
+
       const response = await axios.get(`${config.API_URL}/proyecto/${id}/equipoProyecto`, {
-        params: {
-          limit: rowsPerPage,
-          sort: sortField,
-          [`or[0][0][nombre][regex]`]: search,
-          active
-        },
+        params: params,
         withCredentials: true,
       });
 
@@ -157,7 +164,7 @@ const EquipoProyectoManagement = () => {
                     <TableCell>{equipo.user_id.name}</TableCell>
                     <TableCell>{equipo.rolEquipo_id.nombre}</TableCell>
                     <TableCell>
-                      {['admin'].includes(userRole) && (
+                      {['admin','jefe proyecto'].includes(userRole) && (
                         <>
                           <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(equipo._id)}>EDITAR</Button>
                           {equipo.active ? (
