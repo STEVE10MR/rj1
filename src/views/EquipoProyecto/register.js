@@ -21,6 +21,7 @@ const RegisterEquipoProyecto = () => {
     const fetchRoles = async () => {
       try {
         const response = await axios.get(`${config.API_URL}/rolequipo`, {
+          params: { active: true },
           withCredentials: true,
         });
         setRoles(response.data.data || []);
@@ -32,6 +33,7 @@ const RegisterEquipoProyecto = () => {
     const fetchUsuarios = async () => {
       try {
         const response = await axios.get(`${config.API_URL}/usuario`, {
+          params: { active: true, role: 'user' },
           withCredentials: true,
         });
         setUsuarios(response.data.data.filter(user => ['user', 'jefe proyecto'].includes(user.role)) || []);
@@ -56,7 +58,7 @@ const RegisterEquipoProyecto = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await axios.post(`${config.API_URL}/proyecto/${id}/equipo`, formData, {
+      const response = await axios.post(`${config.API_URL}/proyecto/${id}/equipoProyecto`, formData, {
         withCredentials: true,
       });
       console.log('Miembro registrado:', response.data);

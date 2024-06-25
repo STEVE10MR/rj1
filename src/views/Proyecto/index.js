@@ -18,17 +18,23 @@ const ProjectManagementIndex = () => {
 
   useEffect(() => {
     const fetchProjects = async () => {
+      setLoading(true);
       try {
+        let active = true;
+        const userRole = ManagerCookies.getCookie('userRole');
+        setUser({ role: userRole });
+        if (['admin', 'jefe proyecto'].includes(userRole)) {
+          active = undefined;
+        }
         const response = await axios.get(`${config.API_URL}/proyecto`, {
           params: {
             limit: rowsPerPage,
             sort: sortField,
-            [`or[0][0][nombre][regex]`]: search
+            [`or[0][0][nombre][regex]`]: search,
+            active
           },
           withCredentials: true,
         });
-        const userRole = ManagerCookies.getCookie('userRole');
-        setUser({ role: userRole });
         if (response.data && response.data.data) {
           setProjects(response.data.data);
         } else {
@@ -79,6 +85,28 @@ const ProjectManagementIndex = () => {
 
   const handleRequerimientos = (id) => {
     navigate(`/dashboard/project-management/${id}/requirement`);
+  };
+
+  const handleActivar = async (id) => {
+    try {
+      await axios.patch(`${config.API_URL}/proyecto/${id}/activar`, {}, {
+        withCredentials: true,
+      });
+      fetchProjects(); // Llamada para actualizar la lista de proyectos
+    } catch (error) {
+      console.log('Error activating proyecto:', error);
+    }
+  };
+
+  const handleDesactivar = async (id) => {
+    try {
+      await axios.patch(`${config.API_URL}/proyecto/${id}/desactivar`, {}, {
+        withCredentials: true,
+      });
+      fetchProjects(); // Llamada para actualizar la lista de proyectos
+    } catch (error) {
+      console.log('Error deactivating proyecto:', error);
+    }
   };
 
   return (
@@ -143,20 +171,17 @@ const ProjectManagementIndex = () => {
                     <TableCell>{project.descripcion}</TableCell>
                     <TableCell>{new Date(project.fechaInicio).toLocaleDateString()}</TableCell>
                     <TableCell>{new Date(project.fechaFin).toLocaleDateString()}</TableCell>
-                    {user.role === 'jefe proyecto' && (
-                      <TableCell>
-                        <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleGet(project._id)}>VER</Button>
-                        <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(project._id)}>EDITAR</Button>
-                        <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleMiembros(project._id)}>MIEMBROS</Button>
-                        <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleRequerimientos(project._id)}>REQUERIMIENTOS</Button>
-                        <Button variant="contained" color="error">ELIMINAR</Button>
-                      </TableCell>
-                    )}
-                    {user.role === 'user' && (
-                      <TableCell>
-                        <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleGet(project._id)}>VER</Button>
-                      </TableCell>
-                    )}
+                    <TableCell>
+                      {user.role === 'jefe proyecto' && (
+                        <>
+                          <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(project._id)}>EDITAR</Button>
+                          <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleMiembros(project._id)}>MIEMBROS</Button>
+                          <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleRequerimientos(project._id)}>REQUERIMIENTOS</Button>
+                          <Button variant="contained" color="error" onClick={() => handleDesactivar(project._id)}>DESACTIVAR</Button>
+                          <Button variant="contained" color="primary" onClick={() => handleActivar(project._id)}>ACTIVAR</Button>
+                        </>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (

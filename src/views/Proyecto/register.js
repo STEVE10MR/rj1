@@ -8,7 +8,6 @@ const RegisterProject = () => {
   const [projectData, setProjectData] = useState({
     nombre: '',
     descripcion: '',
-    estado_id: '',
     metodologia_id: '',
     fechaInicio: '',
     fechaFin: '',
@@ -16,19 +15,21 @@ const RegisterProject = () => {
   const [loading, setLoading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [estadoOptions, setEstadoOptions] = useState([]);
+
   const [metodologiaOptions, setMetodologiaOptions] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchOptions = async () => {
       try {
-        const [estadoResponse, metodologiaResponse] = await Promise.all([
-          axios.get(`${config.API_URL}/estado`, { withCredentials: true }),
-          axios.get(`${config.API_URL}/metodologia`, { withCredentials: true })
+        const [ metodologiaResponse] = await Promise.all([
+          axios.get(`${config.API_URL}/metodologia`, {
+            params: {
+              active:true
+            },
+            withCredentials: true})
         ]);
 
-        setEstadoOptions(estadoResponse.data.data || []);
         setMetodologiaOptions(metodologiaResponse.data.data || []);
       } catch (error) {
         console.error('Error fetching options:', error);
@@ -37,7 +38,6 @@ const RegisterProject = () => {
 
     fetchOptions();
   }, []);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProjectData({
@@ -105,21 +105,6 @@ const RegisterProject = () => {
           margin="normal"
           InputLabelProps={{ shrink: true }}
         />
-        <FormControl fullWidth margin="normal">
-          <InputLabel>Estado</InputLabel>
-          <Select
-            name="estado_id"
-            value={projectData.estado_id}
-            onChange={handleChange}
-            label="Estado"
-          >
-            {estadoOptions.map((estado) => (
-              <MenuItem key={estado._id} value={estado._id}>
-                {estado.nombre}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
         <FormControl fullWidth margin="normal">
           <InputLabel>Metodología</InputLabel>
           <Select

@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Box, Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, Typography, Pagination, CircularProgress, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
 import axios from 'axios';
 import config from '../../config';
-import { useNavigate } from 'react-router-dom';  // Asegúrate de importar useNavigate
+import { useNavigate } from 'react-router-dom';
+import * as ManagerCookies from "../ManagerCookies";
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -11,33 +12,43 @@ const UserManagement = () => {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [sortField, setSortField] = useState('createdAt');
-  const navigate = useNavigate();  // Inicializa useNavigate
+  const navigate = useNavigate();
+  
+  const userRole = ManagerCookies.getCookie('userRole');
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      let active = true;
+      if (['admin'].includes(userRole)) {
+        active = undefined;
+      }
+
+      const response = await axios.get(`${config.API_URL}/usuario/obtenerUsuarios`, {
+        params: {
+          limit: rowsPerPage,
+          sort: sortField,
+          [`or[0][0][name][regex]`]: search,
+          [`or[0][1][email][regex]`]: search,
+          active
+        },
+        withCredentials: true,
+      });
+
+      if (response.data && response.data.data) {
+        setUsers(response.data.data);
+      } else {
+        setUsers([]);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.log('Error fetching users:', error);
+      setUsers([]);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await axios.get(`${config.API_URL}/usuario/obtenerUsuarios`, {
-          params: {
-            limit: rowsPerPage,
-            sort: sortField,
-            [`or[0][0][name][regex]`]: search,
-            [`or[0][1][email][regex]`]: search
-          },
-          withCredentials: true,
-        });
-
-        if (response.data && response.data.data) {
-          setUsers(response.data.data);
-        } else {
-          setUsers([]);
-        }
-        setLoading(false);
-      } catch (error) {
-        console.log('Error fetching users:', error);
-        setUsers([]);
-        setLoading(false);
-      }
-    };
     fetchUsers();
   }, [page, rowsPerPage, search, sortField]);
 
@@ -51,7 +62,7 @@ const UserManagement = () => {
 
   const handleRowsPerPageChange = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(1); // Reset to first page
+    setPage(1);
   };
 
   const handleSortFieldChange = (event) => {
@@ -64,6 +75,28 @@ const UserManagement = () => {
 
   const handleEdit = (id) => {
     navigate(`/dashboard/user-management/edit/${id}`);
+  };
+
+  const handleActivar = async (id) => {
+    try {
+      await axios.patch(`${config.API_URL}/usuario/${id}/activar`, {}, {
+        withCredentials: true,
+      });
+      fetchUsers(); // Llamada para actualizar la lista de usuarios
+    } catch (error) {
+      console.log('Error activating user:', error);
+    }
+  };
+
+  const handleDesactivar = async (id) => {
+    try {
+      await axios.patch(`${config.API_URL}/usuario/${id}/desactivar`, {}, {
+        withCredentials: true,
+      });
+      fetchUsers(); // Llamada para actualizar la lista de usuarios
+    } catch (error) {
+      console.log('Error deactivating user:', error);
+    }
   };
 
   return (
@@ -132,14 +165,26 @@ const UserManagement = () => {
                     <TableCell>{new Date(user.updatedAt).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(user._id)}>EDITAR</Button>
-                      <Button variant="contained" color="error">ELIMINAR</Button>
+                      {['admin'].includes(userRole) && (
+                        <>
+                          {user.active ? (
+                            <Button variant="contained" color="error" onClick={() => handleDesactivar(user._id)}>
+                              DESACTIVAR
+                            </Button>
+                          ) : (
+                            <Button variant="contained" color="primary" onClick={() => handleActivar(user._id)}>
+                              ACTIVAR
+                            </Button>
+                          )}
+                        </>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
                   <TableCell colSpan={6} align="center">
-                    No users found
+                    No se encontraron usuarios
                   </TableCell>
                 </TableRow>
               )}

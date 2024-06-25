@@ -3,7 +3,7 @@ import { Box, Container, Table, TableBody, TableCell, TableContainer, TableHead,
 import axios from 'axios';
 import config from '../../config';
 import { useNavigate } from 'react-router-dom';
-import * as ManagerCookies from "../ManagerCookies"
+import * as ManagerCookies from "../ManagerCookies";
 
 const MetodologiaIndex = () => {
   const [metodologias, setMetodologias] = useState([]);
@@ -14,30 +14,39 @@ const MetodologiaIndex = () => {
   const [sortField, setSortField] = useState('createdAt');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchMetodologias = async () => {
-      try {
-        const response = await axios.get(`${config.API_URL}/metodologia`, {
-          params: {
-            limit: rowsPerPage,
-            sort: sortField,
-            [`or[0][0][nombre][regex]`]: search
-          },
-          withCredentials: true,
-        });
+  const userRole = ManagerCookies.getCookie('userRole');
 
-        if (response.data && response.data.data) {
-          setMetodologias(response.data.data);
-        } else {
-          setMetodologias([]);
-        }
-        setLoading(false);
-      } catch (error) {
-        console.log('Error fetching metodologias:', error);
-        setMetodologias([]);
-        setLoading(false);
+  const fetchMetodologias = async () => {
+    setLoading(true);
+    try {
+      let active = true;
+      if (['admin'].includes(userRole)) {
+        active = undefined;
       }
-    };
+      const response = await axios.get(`${config.API_URL}/metodologia`, {
+        params: {
+          limit: rowsPerPage,
+          sort: sortField,
+          [`or[0][0][nombre][regex]`]: search,
+          active
+        },
+        withCredentials: true,
+      });
+
+      if (response.data && response.data.data) {
+        setMetodologias(response.data.data);
+      } else {
+        setMetodologias([]);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.log('Error fetching metodologias:', error);
+      setMetodologias([]);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchMetodologias();
   }, [page, rowsPerPage, search, sortField]);
 
@@ -68,13 +77,36 @@ const MetodologiaIndex = () => {
     navigate(`/dashboard/methodology-management/edit/${id}`);
   };
 
+  const handleActivar = async (id) => {
+    try {
+      await axios.patch(`${config.API_URL}/metodologia/${id}/activar`, {}, {
+        withCredentials: true,
+      });
+      fetchMetodologias();
+    } catch (error) {
+      console.log('Error activating metodologia:', error);
+    }
+  };
+
+  const handleDesactivar = async (id) => {
+    try {
+      await axios.patch(`${config.API_URL}/metodologia/${id}/desactivar`, {}, {
+        withCredentials: true,
+      });
+      fetchMetodologias();
+    } catch (error) {
+      console.log('Error deactivating metodologia:', error);
+    }
+  };
+
   return (
     <Container>
       <Typography variant="h4" gutterBottom>Gestión de Metodologías</Typography>
-      {['admin','jefe proyecto'].includes(ManagerCookies.getCookie('userRole')) && (
-      <Button variant="contained" color="primary" onClick={handleRegister} sx={{ mb: 2 }}>
-        Registrar Metodología
-      </Button>)}
+      {['admin'].includes(userRole) && (
+        <Button variant="contained" color="primary" onClick={handleRegister} sx={{ mb: 2 }}>
+          Registrar Metodología
+        </Button>
+      )}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <TextField
           label="Nombre de la Metodología"
@@ -127,8 +159,20 @@ const MetodologiaIndex = () => {
                     <TableCell>{metodologia.descripcion}</TableCell>
                     <TableCell>
                       <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleGet(metodologia._id)}>VER</Button>
-                      {['admin','jefe proyecto'].includes(localStorage.getItem('userRole')) && (<Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(metodologia._id)}>EDITAR</Button>)}
-                      <Button variant="contained" color="error">ELIMINAR</Button>
+                      {['admin'].includes(userRole) && (
+                        <>
+                          <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(metodologia._id)}>EDITAR</Button>
+                          {metodologia.active ? (
+                            <Button variant="contained" color="error" onClick={() => handleDesactivar(metodologia._id)}>
+                              DESACTIVAR
+                            </Button>
+                          ) : (
+                            <Button variant="contained" color="primary" onClick={() => handleActivar(metodologia._id)}>
+                              ACTIVAR
+                            </Button>
+                          )}
+                        </>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

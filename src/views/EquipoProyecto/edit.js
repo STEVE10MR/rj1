@@ -20,13 +20,14 @@ const EditEquipoProyecto = () => {
   useEffect(() => {
     const fetchEquipo = async () => {
       try {
-        const response = await axios.get(`${config.API_URL}/proyecto/${id}/equipo/${equipoId}`, {
+        const response = await axios.get(`${config.API_URL}/proyecto/${id}/equipoProyecto/${equipoId}`, {
           withCredentials: true,
         });
         setFormData(response.data.data || {});
         setLoading(false);
       } catch (error) {
         console.error('Error fetching equipo:', error);
+        setError('Error fetching equipo');
         setLoading(false);
       }
     };
@@ -34,6 +35,7 @@ const EditEquipoProyecto = () => {
     const fetchRoles = async () => {
       try {
         const response = await axios.get(`${config.API_URL}/rolequipo`, {
+          params: { active: true },
           withCredentials: true,
         });
         setRoles(response.data.data || []);
@@ -45,9 +47,10 @@ const EditEquipoProyecto = () => {
     const fetchUsuarios = async () => {
       try {
         const response = await axios.get(`${config.API_URL}/usuario`, {
+          params: { active: true, role: 'user' },
           withCredentials: true,
         });
-        setUsuarios(response.data.data.filter(user => ['user', 'jefe proyecto'].includes(user.role)) || []);
+        setUsuarios(response.data.data.filter(user => ['user'].includes(user.role)) || []);
       } catch (error) {
         console.error('Error fetching usuarios:', error);
       }
@@ -68,19 +71,21 @@ const EditEquipoProyecto = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await axios.patch(`${config.API_URL}/proyecto/${id}/equipo/${equipoId}`, formData, {
+      await axios.patch(`${config.API_URL}/proyecto/${id}/equipoProyecto/${equipoId}`, formData, {
         withCredentials: true,
       });
-      console.log('Miembro actualizado:', response.data);
-      setLoading(false);
       navigate(`/dashboard/project-management/${id}/equipo`);
     } catch (error) {
       console.error('Error actualizando miembro:', error);
       setError('Error actualizando miembro');
       setLoading(false);
     }
+  };
+
+  const handleSnackbarClose = () => {
+    setError('');
   };
 
   return (
@@ -97,7 +102,7 @@ const EditEquipoProyecto = () => {
         </Box>
       ) : (
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2, maxWidth: 600, mx: 'auto' }}>
-          {error && <Alert severity="error">{error}</Alert>}
+          {error && <Alert severity="error" onClose={handleSnackbarClose}>{error}</Alert>}
           <FormControl variant="outlined" fullWidth margin="normal" required>
             <InputLabel>Usuario</InputLabel>
             <Select

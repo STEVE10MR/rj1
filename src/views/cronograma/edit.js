@@ -205,7 +205,7 @@ const ProjectSchedule = () => {
   const handleBackToProjectManagement = () => {
     navigate('/dashboard/project-management');
   };
-
+  
   return (
     <Container>
       <Typography variant="h4" gutterBottom>Gestionar Cronograma</Typography>

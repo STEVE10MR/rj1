@@ -3,6 +3,7 @@ import { Box, Container, Table, TableBody, TableCell, TableContainer, TableHead,
 import axios from 'axios';
 import config from '../../config';
 import { useNavigate, useParams } from 'react-router-dom';
+import * as ManagerCookies from "../ManagerCookies";
 
 const EquipoProyectoManagement = () => {
   const { id } = useParams();
@@ -14,34 +15,41 @@ const EquipoProyectoManagement = () => {
   const [sortField, setSortField] = useState('createdAt');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchEquipos = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(`${config.API_URL}/proyecto/${id}/equipo`, {
-          params: {
-            limit: rowsPerPage,
-            sort: sortField,
-            [`or[0][0][nombre][regex]`]: search
-          },
-          withCredentials: true,
-        });
+  const userRole = ManagerCookies.getCookie('userRole');
 
-        if (response.data && response.data.data) {
-          setEquipos(response.data.data);
-        } else {
-          setEquipos([]);
-        }
-        setLoading(false);
-      } catch (error) {
-        console.log('Error fetching equipos:', error);
-        setEquipos([]);
-        setLoading(false);
+  const fetchEquipos = async () => {
+    setLoading(true);
+    try {
+      let active = true;
+      if (['admin', 'jefe proyecto'].includes(userRole)) {
+        active = undefined;
       }
-    };
+      const response = await axios.get(`${config.API_URL}/proyecto/${id}/equipoProyecto`, {
+        params: {
+          limit: rowsPerPage,
+          sort: sortField,
+          [`or[0][0][nombre][regex]`]: search,
+          active
+        },
+        withCredentials: true,
+      });
 
+      if (response.data && response.data.data) {
+        setEquipos(response.data.data);
+      } else {
+        setEquipos([]);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.log('Error fetching equipos:', error);
+      setEquipos([]);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchEquipos();
-  }, [id, page, rowsPerPage, search, sortField]);
+  }, [id, page, rowsPerPage, search, sortField, userRole]);
 
   const handleSearchChange = (event) => {
     setSearch(event.target.value);
@@ -68,12 +76,36 @@ const EquipoProyectoManagement = () => {
     navigate(`/dashboard/project-management/${id}/equipo/edit/${equipoId}`);
   };
 
+  const handleActivar = async (equipoId) => {
+    try {
+      await axios.patch(`${config.API_URL}/proyecto/${id}/equipoProyecto/${equipoId}/activar`, {}, {
+        withCredentials: true,
+      });
+      fetchEquipos(); // Llamada para actualizar la lista de equipos
+    } catch (error) {
+      console.log('Error activating equipo:', error);
+    }
+  };
+
+  const handleDesactivar = async (equipoId) => {
+    try {
+      await axios.patch(`${config.API_URL}/proyecto/${id}/equipoProyecto/${equipoId}/desactivar`, {}, {
+        withCredentials: true,
+      });
+      fetchEquipos(); // Llamada para actualizar la lista de equipos
+    } catch (error) {
+      console.log('Error deactivating equipo:', error);
+    }
+  };
+
   return (
     <Container>
       <Typography variant="h4" gutterBottom>Gestión de Equipo del Proyecto</Typography>
-      <Button variant="contained" color="primary" onClick={handleRegister} sx={{ mb: 2 }}>
-        Registrar Miembro
-      </Button>
+      {['admin', 'jefe proyecto'].includes(userRole) && (
+        <Button variant="contained" color="primary" onClick={handleRegister} sx={{ mb: 2 }}>
+          Registrar Miembro
+        </Button>
+      )}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <TextField
           label="Buscar Miembro"
@@ -125,8 +157,20 @@ const EquipoProyectoManagement = () => {
                     <TableCell>{equipo.user_id.name}</TableCell>
                     <TableCell>{equipo.rolEquipo_id.nombre}</TableCell>
                     <TableCell>
-                      <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(equipo._id)}>EDITAR</Button>
-                      <Button variant="contained" color="error">ELIMINAR</Button>
+                      {['admin'].includes(userRole) && (
+                        <>
+                          <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(equipo._id)}>EDITAR</Button>
+                          {equipo.active ? (
+                            <Button variant="contained" color="error" onClick={() => handleDesactivar(equipo._id)}>
+                              DESACTIVAR
+                            </Button>
+                          ) : (
+                            <Button variant="contained" color="primary" onClick={() => handleActivar(equipo._id)}>
+                              ACTIVAR
+                            </Button>
+                          )}
+                        </>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

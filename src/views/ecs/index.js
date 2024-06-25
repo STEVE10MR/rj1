@@ -4,7 +4,8 @@ import { ArrowBack } from '@mui/icons-material';
 import axios from 'axios';
 import config from '../../config';
 import { useNavigate, useParams } from 'react-router-dom';
-import * as ManagerCookies from "../ManagerCookies"
+import * as ManagerCookies from "../ManagerCookies";
+
 const ECSIndex = () => {
   const [ecs, setEcs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,34 +14,43 @@ const ECSIndex = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [sortField, setSortField] = useState('createdAt');
   const navigate = useNavigate();
-  const { id, idFase  } = useParams();
+  const { id, idFase } = useParams();
+
+  const userRole = ManagerCookies.getCookie('userRole');
+
+  const fetchEcs = async () => {
+    setLoading(true);
+    try {
+      let active = true;
+      if (['admin', 'jefe proyecto'].includes(userRole)) {
+        active = undefined;
+      }
+      const response = await axios.get(`${config.API_URL}/metodologia/${id}/fases/${idFase}/ecs`, {
+        params: {
+          limit: rowsPerPage,
+          sort: sortField,
+          [`or[0][0][nombre][regex]`]: search,
+          active
+        },
+        withCredentials: true,
+      });
+
+      if (response.data && response.data.data) {
+        setEcs(response.data.data);
+      } else {
+        setEcs([]);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.log('Error fetching ECS:', error);
+      setEcs([]);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchEcs = async () => {
-      try {
-        const response = await axios.get(`${config.API_URL}/metodologia/${id}/fases/${idFase}/ecs`, {
-          params: {
-            limit: rowsPerPage,
-            sort: sortField,
-            [`or[0][0][nombre][regex]`]: search
-          },
-          withCredentials: true,
-        });
-
-        if (response.data && response.data.data) {
-          setEcs(response.data.data);
-        } else {
-          setEcs([]);
-        }
-        setLoading(false);
-      } catch (error) {
-        console.log('Error fetching ECS:', error);
-        setEcs([]);
-        setLoading(false);
-      }
-    };
     fetchEcs();
-  }, [id, idFase, page, rowsPerPage, search, sortField]);
+  }, [id, idFase, page, rowsPerPage, search, sortField, userRole]);
 
   const handleSearchChange = (event) => {
     setSearch(event.target.value);
@@ -67,6 +77,28 @@ const ECSIndex = () => {
     navigate(`/dashboard/methodology-management/${id}/phases/${idFase}/edit/${ecsId}`);
   };
 
+  const handleActivar = async (ecsId) => {
+    try {
+      await axios.patch(`${config.API_URL}/metodologia/${id}/fases/${idFase}/ecs/${ecsId}/activar`, {}, {
+        withCredentials: true,
+      });
+      fetchEcs(); // Llamada para actualizar la lista de ECS
+    } catch (error) {
+      console.log('Error activating ECS:', error);
+    }
+  };
+
+  const handleDesactivar = async (ecsId) => {
+    try {
+      await axios.patch(`${config.API_URL}/metodologia/${id}/fases/${idFase}/ecs/${ecsId}/desactivar`, {}, {
+        withCredentials: true,
+      });
+      fetchEcs(); // Llamada para actualizar la lista de ECS
+    } catch (error) {
+      console.log('Error deactivating ECS:', error);
+    }
+  };
+
   return (
     <Container>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -75,10 +107,10 @@ const ECSIndex = () => {
         </IconButton>
         <Typography variant="h4" sx={{ ml: 1 }}>Elementos de Configuración del Software</Typography>
       </Box>
-      {['admin','jefe proyecto'].includes(ManagerCookies.getCookie('userRole')) &&(
-      <Button variant="contained" color="primary" onClick={handleRegister} sx={{ mb: 2 }}>
-        Registrar ECS
-      </Button>
+      {['admin', 'jefe proyecto'].includes(userRole) && (
+        <Button variant="contained" color="primary" onClick={handleRegister} sx={{ mb: 2 }}>
+          Registrar ECS
+        </Button>
       )}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <TextField
@@ -123,9 +155,9 @@ const ECSIndex = () => {
               <TableRow>
                 <TableCell>Nombre</TableCell>
                 <TableCell>Descripción</TableCell>
-                <TableCell>Tipo Ecs</TableCell>
-                <TableCell>Tipo de Tecnologia</TableCell>
-                <TableCell>Version</TableCell>
+                <TableCell>Tipo ECS</TableCell>
+                <TableCell>Tipo de Tecnología</TableCell>
+                <TableCell>Versión</TableCell>
                 <TableCell>Fecha Inicio</TableCell>
                 <TableCell>Fecha Fin</TableCell>
                 <TableCell>Opciones</TableCell>
@@ -139,18 +171,30 @@ const ECSIndex = () => {
                     <TableCell>{ec.descripcion}</TableCell>
                     <TableCell>{ec.tipoEcs}</TableCell>
                     <TableCell>{ec.tipoTecnologia}</TableCell>
-                    <TableCell>{ec.versiones[ec.versiones.length-1].version}</TableCell>
-                    <TableCell>{new Date(ec.versiones[ec.versiones.length-1].fechaInicio).toLocaleDateString()}</TableCell>
-                    <TableCell>{new Date(ec.versiones[ec.versiones.length-1].fechaFin).toLocaleDateString()}</TableCell>
+                    <TableCell>{ec.versiones[ec.versiones.length - 1].version}</TableCell>
+                    <TableCell>{new Date(ec.versiones[ec.versiones.length - 1].fechaInicio).toLocaleDateString()}</TableCell>
+                    <TableCell>{new Date(ec.versiones[ec.versiones.length - 1].fechaFin).toLocaleDateString()}</TableCell>
                     <TableCell>
-                      {['admin','jefe proyecto'].includes(localStorage.getItem('userRole')) && (<Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(ec._id)}>EDITAR</Button>)}
-                      {['admin','jefe proyecto'].includes(localStorage.getItem('userRole')) && (<Button variant="contained" color="error">ELIMINAR</Button>)}
+                      {['admin'].includes(userRole) && (
+                        <>
+                          <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(ec._id)}>EDITAR</Button>
+                          {ec.active ? (
+                            <Button variant="contained" color="error" onClick={() => handleDesactivar(ec._id)}>
+                              DESACTIVAR
+                            </Button>
+                          ) : (
+                            <Button variant="contained" color="primary" onClick={() => handleActivar(ec._id)}>
+                              ACTIVAR
+                            </Button>
+                          )}
+                        </>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} align="center">
+                  <TableCell colSpan={8} align="center">
                     No se encontraron ECS
                   </TableCell>
                 </TableRow>

@@ -16,36 +16,38 @@ const ModulosRequerimientoIndex = () => {
   
   const userRole = ManagerCookies.getCookie('userRole');
 
-  useEffect(() => {
-    const fetchModulos = async () => {
-      try {
-        let active = true;
-        if (['admin', 'jefe proyecto'].includes(userRole)) {
-          active = undefined;
-        }
-
-        const response = await axios.get(`${config.API_URL}/moduloRequerimiento`, {
-          params: {
-            limit: rowsPerPage,
-            sort: sortField,
-            [`or[0][0][nombre][regex]`]: search,
-            active
-          },
-          withCredentials: true,
-        });
-        
-        if (response.data && response.data.data) {
-          setModulos(response.data.data);
-        } else {
-          setModulos([]);
-        }
-        setLoading(false);
-      } catch (error) {
-        console.log('Error fetching modulos:', error);
-        setModulos([]);
-        setLoading(false);
+  const fetchModulos = async () => {
+    setLoading(true);
+    try {
+      let active = true;
+      if (['admin', 'jefe proyecto'].includes(userRole)) {
+        active = undefined;
       }
-    };
+
+      const response = await axios.get(`${config.API_URL}/moduloRequerimiento`, {
+        params: {
+          limit: rowsPerPage,
+          sort: sortField,
+          [`or[0][0][nombre][regex]`]: search,
+          active
+        },
+        withCredentials: true,
+      });
+      
+      if (response.data && response.data.data) {
+        setModulos(response.data.data);
+      } else {
+        setModulos([]);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.log('Error fetching modulos:', error);
+      setModulos([]);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchModulos();
   }, [page, rowsPerPage, search, sortField, userRole]);
 

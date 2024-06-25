@@ -4,7 +4,8 @@ import { ArrowBack } from '@mui/icons-material';
 import axios from 'axios';
 import config from '../../config';
 import { useNavigate, useParams } from 'react-router-dom';
-import * as ManagerCookies from "../ManagerCookies"
+import * as ManagerCookies from "../ManagerCookies";
+
 const FasesIndex = () => {
   const [fases, setFases] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,30 +16,39 @@ const FasesIndex = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  useEffect(() => {
-    const fetchFases = async () => {
-      try {
-        const response = await axios.get(`${config.API_URL}/metodologia/${id}/fases`, {
-          params: {
-            limit: rowsPerPage,
-            sort: sortField,
-            [`or[0][0][nombre][regex]`]: search
-          },
-          withCredentials: true,
-        });
+  const userRole = ManagerCookies.getCookie('userRole');
 
-        if (response.data && response.data.data) {
-          setFases(response.data.data);
-        } else {
-          setFases([]);
-        }
-        setLoading(false);
-      } catch (error) {
-        console.log('Error fetching fases:', error);
-        setFases([]);
-        setLoading(false);
+  const fetchFases = async () => {
+    setLoading(true);
+    try {
+      let active = true;
+      if (['admin'].includes(userRole)) {
+        active = undefined;
       }
-    };
+      const response = await axios.get(`${config.API_URL}/metodologia/${id}/fases`, {
+        params: {
+          limit: rowsPerPage,
+          sort: sortField,
+          [`or[0][0][nombre][regex]`]: search,
+          active
+        },
+        withCredentials: true,
+      });
+
+      if (response.data && response.data.data) {
+        setFases(response.data.data);
+      } else {
+        setFases([]);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.log('Error fetching fases:', error);
+      setFases([]);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchFases();
   }, [id, page, rowsPerPage, search, sortField]);
 
@@ -62,11 +72,35 @@ const FasesIndex = () => {
   const handleRegister = () => {
     navigate(`/dashboard/methodology-management/${id}/phases/register`);
   };
+
   const handleGet = (faseId) => {
     navigate(`/dashboard/methodology-management/${id}/phases/${faseId}`);
   };
+
   const handleEdit = (faseId) => {
     navigate(`/dashboard/methodology-management/${id}/phases/edit/${faseId}`);
+  };
+
+  const handleActivar = async (faseId) => {
+    try {
+      await axios.patch(`${config.API_URL}/metodologia/${id}/fases/${faseId}/activar`, {}, {
+        withCredentials: true,
+      });
+      fetchFases();
+    } catch (error) {
+      console.log('Error activating fase:', error);
+    }
+  };
+
+  const handleDesactivar = async (faseId) => {
+    try {
+      await axios.patch(`${config.API_URL}/metodologia/${id}/fases/${faseId}/desactivar`, {}, {
+        withCredentials: true,
+      });
+      fetchFases(); 
+    } catch (error) {
+      console.log('Error deactivating fase:', error);
+    }
   };
 
   return (
@@ -77,9 +111,11 @@ const FasesIndex = () => {
         </IconButton>
         <Typography variant="h4" sx={{ ml: 1 }}>Fases de la Metodología</Typography>
       </Box>
-      {['admin','jefe proyecto'].includes(ManagerCookies.getCookie('userRole')) &&(<Button variant="contained" color="primary" onClick={handleRegister} sx={{ mb: 2 }}>
-        Registrar Fase
-      </Button>)}
+      {['admin', 'jefe proyecto'].includes(userRole) && (
+        <Button variant="contained" color="primary" onClick={handleRegister} sx={{ mb: 2 }}>
+          Registrar Fase
+        </Button>
+      )}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <TextField
           label="Nombre de la Fase"
@@ -133,9 +169,21 @@ const FasesIndex = () => {
                     <TableCell>{fase.nombre}</TableCell>
                     <TableCell>{fase.descripcion}</TableCell>
                     <TableCell>
-                    <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleGet(fase._id)}>VER</Button>
-                    {['admin','jefe proyecto'].includes(localStorage.getItem('userRole')) &&(<Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(fase._id)}>EDITAR</Button>)}
-                    <Button variant="contained" color="error">ELIMINAR</Button>
+                      <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleGet(fase._id)}>VER</Button>
+                      {['admin'].includes(userRole) && (
+                        <>
+                          <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleEdit(fase._id)}>EDITAR</Button>
+                          {fase.active ? (
+                            <Button variant="contained" color="error" onClick={() => handleDesactivar(fase._id)}>
+                              DESACTIVAR
+                            </Button>
+                          ) : (
+                            <Button variant="contained" color="primary" onClick={() => handleActivar(fase._id)}>
+                              ACTIVAR
+                            </Button>
+                          )}
+                        </>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

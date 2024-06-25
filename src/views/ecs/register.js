@@ -14,28 +14,24 @@ const RegisterECS = () => {
     version: '',
     tipoEcs: '',
     tipoTecnologia: '',
-    estado_id: '',
   });
   const [loading, setLoading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [tipoEcsOptions, setTipoEcsOptions] = useState([]);
   const [tipoTecnologiaOptions, setTipoTecnologiaOptions] = useState([]);
-  const [estadoOptions, setEstadoOptions] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchOptions = async () => {
       try {
-        const [tipoEcsResponse, tipoTecnologiaResponse, estadoResponse] = await Promise.all([
+        const [tipoEcsResponse, tipoTecnologiaResponse] = await Promise.all([
           axios.get(`${config.API_URL}/metodologia/${id}/fases/${idFase}/ecs/listar-tipos-ecs`, { withCredentials: true }),
-          axios.get(`${config.API_URL}/metodologia/${id}/fases/${idFase}/ecs/listar-tipos-tecnologia`, { withCredentials: true }),
-          axios.get(`${config.API_URL}/estado`, { withCredentials: true })
+          axios.get(`${config.API_URL}/metodologia/${id}/fases/${idFase}/ecs/listar-tipos-tecnologia`, { withCredentials: true })
         ]);
 
         setTipoEcsOptions(tipoEcsResponse.data.data || []);
         setTipoTecnologiaOptions(tipoTecnologiaResponse.data.data || []);
-        setEstadoOptions(estadoResponse.data.data || []);
       } catch (error) {
         console.error('Error fetching options:', error);
       }
@@ -145,21 +141,6 @@ const RegisterECS = () => {
             {tipoTecnologiaOptions.map((option) => (
               <MenuItem key={option} value={option}>
                 {option}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl fullWidth margin="normal">
-          <InputLabel>Estado</InputLabel>
-          <Select
-            name="estado_id"
-            value={ecsData.estado_id}
-            onChange={handleChange}
-            label="Estado"
-          >
-            {estadoOptions.map((estado) => (
-              <MenuItem key={estado._id} value={estado._id}>
-                {estado.nombre}
               </MenuItem>
             ))}
           </Select>
