@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
-import config from '../config';
+import config from '../../config';
 
 const AuthGmail = () => {
   const navigate = useNavigate();
