@@ -48,7 +48,6 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/api/v1/auth/verification/:token" element={<AuthGmail />} />
         <Route path="/select-project" element={<ProjectSelection />} />
         <Route path="/dashboard/*" element={<Layout />}>
           <Route path="user-management" element={<UserManagement />} />
@@ -82,6 +81,7 @@ function App() {
           <Route path="project-management/:id/equipo/register" element={<EquipoProyectoManagementRegister />} />
           <Route path="project-management/:id/equipo/edit/:equipoId" element={<EquipoProyectoManagementEdit />} />
         </Route>
+        <Route path="/api/v1/auth/verification/:token" element={<AuthGmail />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
