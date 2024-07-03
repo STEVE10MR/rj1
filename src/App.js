@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './views/auth/login';
+import AuthGmail from './views/auth/authGmail';
 import Layout from './views/Layout';
 import UserManagement from './views/Usuario/index';
 import UserManagementRegister from './views/Usuario/register';
@@ -47,6 +48,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/api/v1/auth/verification/:token" element={<AuthGmail />} />
         <Route path="/select-project" element={<ProjectSelection />} />
         <Route path="/dashboard/*" element={<Layout />}>
           <Route path="user-management" element={<UserManagement />} />
