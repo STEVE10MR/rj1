@@ -25,6 +25,7 @@ import ModuleRequerimentManagement from './views/ModuloRequerimiento/index';
 import ModuleRequerimentManagementEdit from './views/ModuloRequerimiento/edit';
 import ModuleRequerimentManagementRegister from './views/ModuloRequerimiento/register';
 
+import TareaManagement from './views/tareas/index';
 
 import ProjectRequerimentManagement from './views/Proyecto/index';
 import ProjectRequerimentManagementGet from './views/Proyecto/get';
@@ -80,6 +81,8 @@ function App() {
           <Route path="project-management/:id/equipo" element={<EquipoProyectoManagement />} />
           <Route path="project-management/:id/equipo/register" element={<EquipoProyectoManagementRegister />} />
           <Route path="project-management/:id/equipo/edit/:equipoId" element={<EquipoProyectoManagementEdit />} />
+
+          <Route path="task" element={<TareaManagement />} />
         </Route>
         <Route path="/auth/verification/:token" element={<AuthGmail />} />
         <Route path="*" element={<Navigate to="/" />} />

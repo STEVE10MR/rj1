@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Container, Grid, Typography, Box, Button, CircularProgress, Paper, Avatar,
-  CssBaseline, Snackbar, Alert
-} from '@mui/material';
+import { Container, Grid, Typography, Box, Button, CircularProgress, Paper, Avatar, CssBaseline, Snackbar, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import AccountCircle from '@mui/icons-material/AccountCircle';
@@ -28,26 +25,23 @@ const SelectProject = () => {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const userRole = ManagerCookies.getCookie('userRole');
-
-
-        if (userRole !== 'user') {
-          navigate('/dashboard');
-        }
-
         if (ManagerCookies.getCookie('selectedProject')) {
           navigate('/dashboard');
         }
 
-        const [rolesResponse, committeesResponse, userInfoResponse] = await Promise.all([
-          axios.get(`${config.API_URL}/usuario/listar-equipo-proyecto`, { withCredentials: true }),
-          axios.get(`${config.API_URL}/usuario/listar-comite-proyecto`, { withCredentials: true }),
-          axios.get(`${config.API_URL}/usuario/informacion`, { withCredentials: true })
-        ]);
+        const response = await axios.get(`${config.API_URL}/auth/verify-session`, {
+          withCredentials: true,
+        });
 
+        const rolesResponse = await axios.get(`${config.API_URL}/usuario/listar-equipo-proyecto`, { withCredentials: true });
         setRoles(rolesResponse.data.data || []);
+
+        const committeesResponse = await axios.get(`${config.API_URL}/usuario/listar-comite-proyecto`, { withCredentials: true });
         setCommittees(committeesResponse.data.data || []);
+
+        const userInfoResponse = await axios.get(`${config.API_URL}/usuario/informacion`, { withCredentials: true });
         setUserInfo(userInfoResponse.data.data);
+
         setLoading(false);
       } catch (error) {
         setSnackbarMessage('Error fetching data');
@@ -67,9 +61,10 @@ const SelectProject = () => {
         ? `${config.API_URL}/usuario/listar-comite-proyecto`
         : `${config.API_URL}/usuario/listar-proyecto-rol-proyecto/${roleId}`;
 
-      const params = committeeId ? { comite_id: committeeId } : {};
-      const response = await axios.get(endpoint, { params, withCredentials: true });
-
+      const response = committeeId
+        ? await axios.get(endpoint, { params: { comite_id: committeeId }, withCredentials: true })
+        : await axios.get(endpoint, { withCredentials: true });
+        
       setProjects(response.data.data || []);
       setProjectsLoading(false);
     } catch (error) {
@@ -137,12 +132,7 @@ const SelectProject = () => {
           <Grid item xs={12} md={3}>
             <Paper sx={{ p: 2, mb: 2 }}>
               {userInfo && (
-                <Box sx={{
-                  p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center',
-                  bgcolor: theme.palette.background.paper, color: theme.palette.text.primary,
-                  borderRadius: 2, mb: 2, boxShadow: theme.shadows[1],
-                  border: `1px solid ${theme.palette.divider}`, textAlign: 'center'
-                }}>
+                <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: theme.palette.background.paper, color: theme.palette.text.primary, borderRadius: 2, mb: 2, boxShadow: theme.shadows[1], border: `1px solid ${theme.palette.divider}`, textAlign: 'center' }}>
                   <Avatar sx={{ bgcolor: theme.palette.primary.main, width: 64, height: 64 }}>
                     <AccountCircle fontSize="large" />
                   </Avatar>
@@ -205,7 +195,8 @@ const SelectProject = () => {
                   <Grid item xs={12} sm={6} md={4} key={project.proyecto_id._id}>
                     <Paper
                       sx={{
-                        p: 2, textAlign: 'center',
+                        p: 2,
+                        textAlign: 'center',
                         transition: 'background-color 0.3s',
                         '&:hover': {
                           backgroundColor: 'rgba(25, 118, 210, 0.1)',

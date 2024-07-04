@@ -136,21 +136,43 @@ const Sidebar = () => {
               </Collapse>
             </>
           )}
-          <ListItem button onClick={handleToggleProyecto} sx={{ '&:hover': { bgcolor: theme.palette.action.hover } }}>
-            <ListItemIcon>
-              <People />
-            </ListItemIcon>
-            <ListItemText primary="Proyecto" />
-            {openProyecto ? <ExpandLess /> : <ExpandMore />}
-          </ListItem>
-          <Collapse in={openProyecto} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-            {['jefe proyecto'].includes(role) && (
-              <ListItem button component={Link} to="/dashboard/project-management" sx={{ pl: 4, '&:hover': { bgcolor: theme.palette.action.hover } }}>
-                <ListItemText primary="Gestión de Proyectos" />
-              </ListItem>)}
-            </List>
-          </Collapse>
+          {['admin','jefe proyecto'].includes(role) && (
+            <>
+            <ListItem button onClick={handleToggleProyecto} sx={{ '&:hover': { bgcolor: theme.palette.action.hover } }}>
+              <ListItemIcon>
+                <People />
+              </ListItemIcon>
+              <ListItemText primary="Proyecto" />
+              {openProyecto ? <ExpandLess /> : <ExpandMore />}
+            </ListItem>
+            <Collapse in={openProyecto} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+              {['jefe proyecto'].includes(role) && (
+                <ListItem button component={Link} to="/dashboard/project-management" sx={{ pl: 4, '&:hover': { bgcolor: theme.palette.action.hover } }}>
+                  <ListItemText primary="Gestión de Proyectos" />
+                </ListItem>)}
+              </List>
+            </Collapse>
+            </>
+          )}
+          {['user'].includes(role) && (
+            <>
+            <ListItem button onClick={handleToggleProyecto} sx={{ '&:hover': { bgcolor: theme.palette.action.hover } }}>
+              <ListItemIcon>
+                <People />
+              </ListItemIcon>
+              <ListItemText primary="Operaciones" />
+              {openProyecto ? <ExpandLess /> : <ExpandMore />}
+            </ListItem>
+            <Collapse in={openProyecto} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                <ListItem button component={Link} to="/dashboard/project-management" sx={{ pl: 4, '&:hover': { bgcolor: theme.palette.action.hover } }}>
+                  <ListItemText primary="Mis Tareas" />
+                </ListItem>
+              </List>
+            </Collapse>
+            </>
+          )}
           <ListItem button component={Link} to="/dashboard/security" sx={{ '&:hover': { bgcolor: theme.palette.action.hover } }}>
             <ListItemIcon>
               <Security />
