@@ -63,11 +63,9 @@ const Layout = () => {
       </Box>
     );
   }
-  console.log("2")
   if (user.role !== 'admin' && user.role !== 'jefe proyecto' && !selectedProject && location.pathname !== '/select-project') {
     return <Navigate to="/select-project" />;
   }
-  console.log("3")
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />

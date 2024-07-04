@@ -28,6 +28,13 @@ const SelectProject = () => {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
+        const userRole = ManagerCookies.getCookie('userRole');
+        console.log(userRole)
+
+        if (userRole !== 'user') {
+          navigate('/dashboard');
+        }
+
         if (ManagerCookies.getCookie('selectedProject')) {
           navigate('/dashboard');
         }
@@ -91,6 +98,19 @@ const SelectProject = () => {
     fetchProjects(null, committeeId);
   };
 
+  const handleLogout = async () => {
+    try {
+      await axios.get(`${config.API_URL}/auth/logout`, { withCredentials: true });
+      ManagerCookies.deleteCookie('selectedProject');
+      ManagerCookies.deleteCookie('committeeId');
+      ManagerCookies.deleteCookie('teamRole');
+      ManagerCookies.deleteCookie('userRole');
+      navigate('/');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
@@ -107,8 +127,11 @@ const SelectProject = () => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Container maxWidth="lg">
-        <Box sx={{ bgcolor: '#1976d2', color: '#fff', p: 2, mb: 4 }}>
+        <Box sx={{ bgcolor: '#1976d2', color: '#fff', p: 2, mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h4">GPDI : Project Management System</Typography>
+          <Button variant="contained" color="secondary" onClick={handleLogout}>
+            Cerrar Sesión
+          </Button>
         </Box>
         <Grid container spacing={2}>
           <Grid item xs={12} md={3}>

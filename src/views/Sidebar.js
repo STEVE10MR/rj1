@@ -35,7 +35,7 @@ const Sidebar = () => {
         const teamRole = ManagerCookies.getCookie('teamRole');
         const selectedProject = ManagerCookies.getCookie('selectedProject');
         const userRole = ManagerCookies.getCookie('userRole');
-
+        
         if ((!selectedProject && (!committeeId || !teamRole)) && (userRole !== 'admin' && userRole !== 'jefe proyecto')) {
           ManagerCookies.deleteCookie('selectedProject');
           ManagerCookies.deleteCookie('committeeId');

@@ -1,26 +1,28 @@
 import React, { useState } from 'react';
-import { Container, TextField, Button, Typography, Box, IconButton, CircularProgress, Alert } from '@mui/material';
+import { Container, TextField, Button, Typography, Box, IconButton, CircularProgress, Alert, Checkbox, FormControlLabel } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import config from '../../config';
+import * as ManagerCookies from "../ManagerCookies";
 
 const UserManagementRegister = () => {
+  const userRole = ManagerCookies.getCookie('userRole'); // Obtener el rol del usuario actual
   const [formData, setFormData] = useState({
     email: '',
-    firtName: '',
-    lastName: ''
+    firstName: '',
+    lastName: '',
+    role: 'user'
   });
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: type === 'checkbox' ? (checked ? 'jefe proyecto' : 'user') : value
     });
   };
 
@@ -32,8 +34,9 @@ const UserManagementRegister = () => {
       const response = await axios.post(`${config.API_URL}/usuario/registrarUsuario`, formData, {
         withCredentials: true,
       });
+      console.log("formData")
       console.log('User registered:', response.data);
-      navigate('/dashboard/user-management'); // Redirige a la vista de gestión de usuarios después del registro
+      navigate('/dashboard/user-management');
     } catch (error) {
       console.error('Error registering user:', error);
       setError('Error registering user. Please try again.');
@@ -66,8 +69,8 @@ const UserManagementRegister = () => {
         />
         <TextField
           label="First Name"
-          name="firtName"
-          value={formData.firtName}
+          name="firstName"
+          value={formData.firstName}
           onChange={handleChange}
           variant="outlined"
           fullWidth
@@ -84,6 +87,19 @@ const UserManagementRegister = () => {
           margin="normal"
           required
         />
+        {userRole === 'admin' && (
+          <FormControlLabel
+            control={
+              <Checkbox
+                name="role"
+                checked={formData.role === 'jefe proyecto'}
+                onChange={handleChange}
+                color="primary"
+              />
+            }
+            label="Marcar como Jefe de Proyecto"
+          />
+        )}
         {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
         <Box sx={{ position: 'relative', mt: 2 }}>
           <Button
