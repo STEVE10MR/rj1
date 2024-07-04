@@ -81,7 +81,7 @@ function App() {
           <Route path="project-management/:id/equipo/register" element={<EquipoProyectoManagementRegister />} />
           <Route path="project-management/:id/equipo/edit/:equipoId" element={<EquipoProyectoManagementEdit />} />
         </Route>
-        <Route path="/api/v1/auth/verification/:token" element={<AuthGmail />} />
+        <Route path="/auth/verification/:token" element={<AuthGmail />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
