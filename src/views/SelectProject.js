@@ -29,7 +29,7 @@ const SelectProject = () => {
     const fetchInitialData = async () => {
       try {
         const userRole = ManagerCookies.getCookie('userRole');
-        console.log(userRole)
+
 
         if (userRole !== 'user') {
           navigate('/dashboard');
