@@ -166,7 +166,7 @@ const Sidebar = () => {
             </ListItem>
             <Collapse in={openProyecto} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
-                <ListItem button component={Link} to="/dashboard/project-management" sx={{ pl: 4, '&:hover': { bgcolor: theme.palette.action.hover } }}>
+                <ListItem button component={Link} to="/dashboard/task" sx={{ pl: 4, '&:hover': { bgcolor: theme.palette.action.hover } }}>
                   <ListItemText primary="Mis Tareas" />
                 </ListItem>
               </List>
