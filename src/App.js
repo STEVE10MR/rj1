@@ -44,6 +44,8 @@ import CronogramaManagement from './views/cronograma/edit';
 
 import ProjectSelection from './views/SelectProject';
 
+import InformeEstado from './views/InformeEstado/index';
+import InformeEstadoProject from './views/InformeEstado/index';
 function App() {
   return (
     <Router>
@@ -83,6 +85,9 @@ function App() {
           <Route path="project-management/:id/equipo/edit/:equipoId" element={<EquipoProyectoManagementEdit />} />
 
           <Route path="task" element={<TareaManagement />} />
+
+          <Route path="report-management" element={<InformeEstado />} />
+          <Route path="report-management/:id/report-options" element={<InformeEstadoProject />} />
         </Route>
         <Route path="/auth/verification/:token" element={<AuthGmail />} />
         <Route path="*" element={<Navigate to="/" />} />

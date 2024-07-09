@@ -106,6 +106,16 @@ const Sidebar = () => {
             </ListItemIcon>
             <ListItemText primary="Dashboard" />
           </ListItem>
+
+          {['jefe proyecto'].includes(role) && (
+            <ListItem button onClick={() => navigate('/dashboard/report-management')} sx={{ '&:hover': { bgcolor: theme.palette.action.hover } }}>
+              <ListItemIcon>
+                <Assignment />
+              </ListItemIcon>
+              <ListItemText primary="Informe de Estado" />
+            </ListItem>
+          )}
+
           {['user'].includes(role) && (<ListItem button onClick={handleSelectProject} sx={{ '&:hover': { bgcolor: theme.palette.action.hover } }}>
             <ListItemIcon>
               <Assignment />
